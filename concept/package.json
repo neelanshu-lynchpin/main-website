@@ -1,0 +1,7 @@
+{
+  "name": "lynchpin-site",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build-site.mjs" },
+  "dependencies": { "mongodb": "6.10.0" }
+}
