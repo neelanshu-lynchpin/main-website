@@ -551,6 +551,76 @@ section[id]{scroll-margin-top:96px}
 .room h1{max-width:none!important;font-size:clamp(2.3rem, 4.4vw, 4.2rem)!important;line-height:1!important}
 .r-row{flex-direction:column;align-items:flex-start!important;gap:14px!important}
 @media (max-width:760px){ .r-row{align-items:stretch!important} .room h1 br{display:none} }
+
+/* ---------- Phone pass: every section checked at 390 x 844 ---------- */
+.nav-call,.nav-menu{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:900px){
+  .nav-in{gap:10px}
+  .nav .nav-book{padding:9px 12px;font-size:13px}
+  .nav-call{display:grid;place-items:center;width:40px;height:40px;border:1.5px solid var(--ink);border-radius:3px;color:var(--ink)}
+  .nav-menu{display:grid;align-content:center;gap:5px;width:40px;height:40px;border:0;background:var(--ink);border-radius:3px;cursor:pointer;padding:0 10px}
+  .nav-menu span:not(.sr){display:block;height:2px;background:#fff;transition:transform .2s}
+  .menu-open .nav-menu span:nth-child(1){transform:translateY(3.5px) rotate(45deg)}
+  .menu-open .nav-menu span:nth-child(2){transform:translateY(-3.5px) rotate(-45deg)}
+  .nav-sheet{display:grid;gap:2px;padding:8px max(20px, env(safe-area-inset-left, 0px)) 18px;background:var(--white);border-top:1px solid var(--line);box-shadow:0 18px 30px -18px rgb(0 0 0 / .3)}
+  .nav-sheet[hidden]{display:none}
+  .nav-sheet a{color:var(--ink);text-decoration:none;font:600 18px var(--body);padding:12px 2px;border-bottom:1px solid var(--line)}
+  .nav-sheet .btn{margin-top:12px;text-align:center;border-bottom:0;color:#fff}
+  .nav-sheet .sheet-call{border:1.5px solid var(--ink);text-align:center;border-radius:3px;margin-top:8px}
+}
+@media (max-width:340px){ .nav .nav-book{display:none} }
+
+@media (max-width:760px){
+  /* 1-2. Hero: shorter photo, words straight under it, both buttons always on screen */
+  .r-frame{height:44svh!important}
+  .r-copy{top:44svh!important}
+  .r-copy-in{padding-top:16px!important;gap:10px!important}
+  .room .where{font-size:13px}
+  .room h1{font-size:1.85rem!important;line-height:1.02!important}
+  .r-row{gap:10px!important}
+  .r-sum{padding:10px 14px!important;grid-template-columns:auto 1fr!important}
+  .r-sum .r-label{font-size:.82rem}
+  .r-total{font-size:1.7rem!important}
+  .r-keep{font-size:.8rem;justify-self:end;text-align:right}
+  .r-actions .btn,.call-ghost{min-height:48px}
+  /* price tags: just the price, smaller, so neighbours don't overlap */
+  .ptag{min-width:0!important;padding:4px 7px!important;font-size:11px!important;top:-6px!important;left:14px!important}
+  .pin.left .ptag{left:auto!important;right:14px!important}
+  .ptag b{display:none}
+  .pin i{width:16px;height:16px;border-width:2px}
+  .r-capy{height:11svh!important}
+  /* 4-5. Savings: capybara sits in the gap above the box, results in one row */
+  .calc{gap:84px!important}
+  .peek{width:88px!important;top:-80px!important;right:4px!important}
+  .res{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .res div{padding:10px 8px}
+  .res span{font-size:9.5px;letter-spacing:.04em}
+  .res b{font-size:17px!important;white-space:nowrap}
+  .bar{grid-template-columns:4.5rem minmax(0,1fr)}
+  /* 6. Why repair: a compact crew row */
+  .green{padding-block:64px 0}
+  .green-art{min-height:190px!important;margin-top:8px}
+  .green-art img{height:180px!important;bottom:0!important;right:8%!important}
+  .green-art img.sm{height:140px!important;left:8%!important}
+  /* 7. How it works: photos start right under the heading */
+  .h-view{align-items:flex-start!important}
+  .how .wrap{gap:20px!important}
+  .how .steps{padding-top:6px}
+  /* 8. Where we work: the container hangs over the heading without pushing it down */
+  .where-copy{position:relative;padding-top:150px}
+  .where-copy .crate{position:absolute;top:0;right:4px;width:84px!important;margin:0}
+  #where .map{max-width:330px}
+  /* 9. Promise: less empty space */
+  .promise{min-height:auto!important;padding-block:72px 150px!important}
+  .promise blockquote{font-size:2rem}
+  /* 10. Contact: mascot smaller, next to the heading */
+  .book-capy{width:84px!important;float:right;margin:-8px 0 0 12px}
+  section.band{padding-block:56px}
+}
+.nav-book .sm{display:none}
+@media (max-width:900px){ .nav-book .lg{display:none} .nav-book .sm{display:inline} .nav .nav-book{white-space:nowrap} }
+@media (max-width:760px){ .r-frame{height:50svh!important} .r-copy{top:50svh!important} }
 </style>
 
 <nav class="nav" aria-label="Main">
@@ -562,7 +632,14 @@ section[id]{scroll-margin-top:96px}
       <li><a href="#how">How it works</a></li>
       <li><a href="#where">Where we work</a></li>
     </ul>
+    <a class="btn nav-book" href="#contact"><span class="lg">Book an assessment</span><span class="sm">Book a visit</span></a>
+    <a class="nav-call" href="tel:+919036615441" aria-label="Call Lynchpin on +91 90366 15441"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6.6 3.5l2.6 3.3c.4.5.4 1.2 0 1.7L8 10c1.2 2.5 3.4 4.7 6 6l1.5-1.2c.5-.4 1.2-.4 1.7 0l3.3 2.6c.5.4.6 1.2.2 1.7l-1.4 1.8c-.6.8-1.7 1.1-2.6.8C10 19.6 4.4 14 2.3 7.3c-.3-.9 0-2 .8-2.6l1.8-1.4c.5-.4 1.3-.3 1.7.2z" fill="currentColor"/></svg></a>
+    <button class="nav-menu" type="button" aria-expanded="false" aria-controls="nav-sheet"><span></span><span></span><span class="sr">Menu</span></button>
+  </div>
+  <div class="nav-sheet" id="nav-sheet" hidden>
+    <a href="#savings">Savings</a><a href="#fix">What we fix</a><a href="#how">How it works</a><a href="#where">Where we work</a>
     <a class="btn" href="#contact">Book an assessment</a>
+    <a class="sheet-call" href="tel:+919036615441">Call +91 90366 15441</a>
   </div>
 </nav>
 
@@ -1160,6 +1237,14 @@ section[id]{scroll-margin-top:96px}
     var go = function(){ document.querySelectorAll('img[loading="lazy"]').forEach(function(img){ img.loading = 'eager'; }); };
     'requestIdleCallback' in window ? requestIdleCallback(go, {timeout:2000}) : setTimeout(go, 1200);
   });
+
+  /* Phone menu */
+  var menuBtn = document.querySelector('.nav-menu'), sheet = document.getElementById('nav-sheet');
+  if(menuBtn){
+    var setMenu = function(open){ sheet.hidden = !open; menuBtn.setAttribute('aria-expanded', open); document.body.classList.toggle('menu-open', open); };
+    menuBtn.addEventListener('click', function(){ setMenu(sheet.hidden); });
+    sheet.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ setMenu(false); }); });
+  }
 
   /* On a local preview the footer's Team login opens the local admin */
   if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) document.querySelectorAll('.team').forEach(function(a){ a.href = '/admin'; a.removeAttribute('target'); });
