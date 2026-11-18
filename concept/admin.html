@@ -1,0 +1,1021 @@
+<title>Lynchpin Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a working tool in the Lynchpin brand. Ink top bar, paper workspace, red only for
+   actions and money that matters. Single light theme on purpose, to match printed quotes. */
+:root{
+  --red:#E3181F; --red-deep:#A9121A; --ink:#16181B; --ink-2:#2A2D32; --mute:#5D6168;
+  --paper:#F3EFEE; --card:#FFFFFF; --line:#E1DAD8; --line-2:#CFC6C3;
+  --good:#1F7A4D; --warn:#B26B00;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --body:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",Menlo,monospace;
+  --gut:max(16px,env(safe-area-inset-left,0px));
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+h1,h2,h3{font-family:var(--display);margin:0;font-variation-settings:"wdth" 106;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ink);color:#fff}
+.top-in{display:flex;align-items:center;gap:20px;min-height:62px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:12px;font:800 1.05rem var(--display);white-space:nowrap}
+.brand img{height:26px;width:auto}
+.brand span{padding-left:12px;border-left:1px solid #4A4E55;color:#C9CCD1;font-weight:600}
+.tabs{display:flex;gap:4px;margin-left:12px;overflow-x:auto}
+.tab{all:unset;cursor:pointer;padding:8px 14px;border-radius:8px;font-weight:600;color:#C9CCD1;white-space:nowrap;transition:background .2s,color .2s}
+.tab:hover{color:#fff;background:#24272C}
+.tab[aria-selected="true"]{color:#fff;background:var(--red)}
+.tab:focus-visible{outline:3px solid #fff}
+.me{margin-left:auto;display:flex;align-items:center;gap:10px;font-weight:600;color:#E6E7E9;white-space:nowrap}
+.me img{width:30px;height:30px;border-radius:50%}
+
+main{padding:24px max(20px,env(safe-area-inset-right,0px)) 64px max(20px,env(safe-area-inset-left,0px));max-width:1600px;margin-inline:auto}
+.head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px;margin-bottom:20px}
+.head h1{font-size:clamp(1.6rem,2.6vw,2.2rem);font-weight:800}
+.head p{color:var(--mute);margin-top:4px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;padding:10px 16px;border-radius:9px;font-weight:700;background:var(--ink);color:#fff;transition:transform .12s,background .2s;white-space:nowrap}
+.btn:hover{background:#000}
+.btn:active{transform:translateY(1px)}
+.btn.red{background:var(--red)}
+.btn.red:hover{background:var(--red-deep)}
+.btn.ghost{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line-2)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn.danger{background:none;color:var(--red-deep);box-shadow:inset 0 0 0 1.5px #E7B9BB}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link{all:unset;cursor:pointer;color:var(--red-deep);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* Stat strip */
+.stats{display:flex;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:22px;overflow:hidden}
+.stat{flex:1 1 180px;padding:12px 18px;border-right:1px solid var(--line);display:grid;gap:2px}
+.stat b{font:700 1.2rem/1.2 var(--body);font-variant-numeric:tabular-nums}
+.stat span{color:var(--mute);font-size:.82rem}
+
+/* Pipeline board */
+.board{display:grid;grid-template-columns:repeat(6,minmax(230px,1fr));gap:18px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.col{min-height:260px;display:flex;flex-direction:column;gap:8px;border-radius:8px;transition:background .2s}
+.col.over{background:#F7ECEC}
+.col-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 2px 8px;margin-bottom:2px;border-bottom:2px solid var(--ink);font:700 .9rem var(--body)}
+.col-h small{font:500 .8rem var(--body);color:var(--mute)}
+.col-h i{font-style:normal;font-weight:500;color:var(--mute);margin-left:6px}
+.lead{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 12px 10px;cursor:pointer;transition:border-color .15s}
+.lead:hover{border-color:#A9A09D}
+.lead.drag{opacity:.4}
+.lead h3{font:700 .95rem/1.3 var(--body)}
+.lead p{color:var(--mute);font-size:.84rem;margin-top:2px}
+.lead-f{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid #F0EBE9;font-size:.82rem}
+.lead-f b{font-variant-numeric:tabular-nums}
+.playbook{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:16px}
+.playbook summary{cursor:pointer;padding:12px 16px;font-weight:700}
+.pb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:4px 16px 18px}
+.pb-grid h3{font:700 .95rem var(--body);margin-bottom:6px}
+.pb-grid ul,.pb-grid ol{margin:0;padding-left:18px;display:grid;gap:5px;color:var(--ink-2);font-size:.9rem}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.filters input{flex:1 1 220px;width:auto}
+.filters select{width:auto;flex:0 1 auto}
+.funnel{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.funnel button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;border:1px solid var(--line-2);background:var(--card);font-size:.84rem;font-weight:600;color:var(--ink-2)}
+.funnel button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.funnel b{font-variant-numeric:tabular-nums;margin-left:4px}
+td.wrap{white-space:normal;min-width:220px;max-width:320px;font-size:.88rem}
+.signal{white-space:normal;max-width:380px;font-size:.82rem;color:var(--ink-2);margin-top:3px}
+.signal a{color:var(--red-deep);font-weight:600}
+.new-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:6px;background:var(--red);color:#fff;font:700 .7rem var(--body);vertical-align:middle}
+.prio{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;font:800 .75rem var(--body);background:#ECE6E4;color:var(--ink-2)}
+.prio.A{background:var(--ink);color:#fff}
+.seg{color:var(--mute);font-size:.82rem}
+.dm{display:grid;line-height:1.3}
+.dm small{color:var(--mute)}
+.find{color:var(--warn);font-weight:600}
+@media (max-width:860px){.pb-grid{grid-template-columns:minmax(0,1fr)}}
+.demo-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:6px;background:#FFF1D6;color:#8A5300;font:700 .7rem var(--body);text-transform:uppercase;letter-spacing:.05em;vertical-align:middle}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:var(--paper);font-weight:600;font-size:.78rem;color:var(--ink-2)}
+.who{display:inline-flex;align-items:center;gap:6px;color:var(--mute)}
+.who i{font-style:normal;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#ECE6E4;color:var(--ink-2);font:700 .68rem var(--body)}
+.who i:empty{background:none;border:1px dashed var(--line-2)}
+.empty-col{color:var(--mute);font-size:.82rem;padding:6px 2px}
+
+/* Catalogue */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.prod{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 0 var(--line);cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
+.prod:hover{transform:translateY(-3px);box-shadow:0 14px 24px -14px rgb(40 10 10 / .35)}
+.prod-img{aspect-ratio:4/3;background:#F4F0EF center/contain no-repeat;background-origin:content-box;padding:16px;display:grid;place-items:center;color:var(--mute);font-size:.85rem}
+.prod-b{padding:12px 14px 14px;display:grid;gap:4px}
+.prod-b h3{font-size:1.02rem;font-weight:700}
+.prod-b .price{font:800 1.05rem var(--display);font-variant-numeric:tabular-nums}
+.cat{font-size:.78rem;font-weight:700;color:var(--red-deep);text-transform:uppercase;letter-spacing:.06em}
+
+/* Quotes list */
+.table-wrap{background:var(--card);border-radius:12px;box-shadow:0 1px 0 var(--line);overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:700 .8rem var(--body);color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+tbody tr{cursor:pointer;transition:background .15s}
+tbody tr:hover{background:#FBF8F7}
+td.r,th.r{text-align:right}
+.status{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:700}
+.s-draft{background:#EEE;color:#555}
+.s-sent{background:#FFF1D6;color:var(--warn)}
+.s-accepted{background:#DDF2E6;color:var(--good)}
+.s-declined{background:#F8DCDD;color:var(--red-deep)}
+
+/* Empty and gate states */
+.empty{background:var(--card);border-radius:14px;padding:40px 24px;text-align:center;display:grid;gap:10px;justify-items:center;box-shadow:0 1px 0 var(--line)}
+.empty h2{font-size:1.4rem}
+.empty p{color:var(--mute);max-width:46ch}
+.gate{min-height:70dvh;display:grid;place-items:center;text-align:center}
+.gate-in{display:grid;gap:12px;justify-items:center;max-width:460px}
+.gate img{height:120px;width:auto}
+.gate h1{font-size:1.8rem}
+.gate p{color:var(--mute)}
+.skel{background:linear-gradient(90deg,#E9E3E1,#F3EEEC,#E9E3E1);background-size:200% 100%;animation:sh 1.2s linear infinite;border-radius:10px}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* Side drawer */
+.scrim{position:fixed;inset:0;z-index:20;background:rgb(22 24 27 / .45);opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:21;top:0;right:0;bottom:0;width:min(560px,100vw);background:var(--card);transform:translateX(102%);transition:transform .35s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);box-shadow:-20px 0 40px -20px rgb(0 0 0 / .3)}
+.drawer.wide{width:min(980px,100vw)}
+.drawer.open{transform:none}
+.dr-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.dr-h h2{font-size:1.3rem}
+.x{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;font-size:1.4rem;line-height:1}
+.x:hover{background:var(--paper)}
+.dr-b{flex:1;overflow-y:auto;padding:20px;display:grid;gap:14px;align-content:start}
+.dr-f{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--line);padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+.dr-f .actions{margin-left:auto}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:5px;min-width:0}
+.field label,.lab{font-weight:600;font-size:.88rem}
+input,select,textarea{width:100%;border:1.5px solid var(--line-2);border-radius:8px;padding:9px 11px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ink)}
+textarea{min-height:84px;resize:vertical}
+.hint{color:var(--mute);font-size:.82rem}
+.err{color:var(--red-deep);font-size:.85rem;font-weight:600}
+.upload{display:flex;align-items:center;gap:12px}
+.upload .thumb{width:84px;height:64px;border-radius:8px;background:#EFE8E6 center/cover no-repeat;flex:none}
+
+/* Quote builder lines */
+.lines{display:grid;gap:8px}
+.line{display:grid;grid-template-columns:minmax(0,2.4fr) 76px 110px 110px 34px;gap:8px;align-items:center}
+.line-h{font-size:.78rem;color:var(--mute);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.line .amt{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.totals{margin-left:auto;width:min(100%,340px);display:grid;gap:6px;padding-top:8px;border-top:2px solid var(--line)}
+.totals div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.totals .grand{font:800 1.3rem var(--display);padding-top:6px;border-top:1px solid var(--line)}
+
+/* Document preview (catalogue and quote) */
+.doc-view{position:fixed;inset:0;z-index:30;background:#5B5F66;overflow-y:auto;display:none;padding:70px 16px 40px}
+.doc-view.open{display:block}
+.doc-bar{position:fixed;z-index:31;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--ink);color:#fff;padding:10px max(16px,env(safe-area-inset-left,0px));padding-top:max(10px,env(safe-area-inset-top,0px))}
+.doc-bar b{font-family:var(--display)}
+.doc-frame{max-width:860px;margin:0 auto;box-shadow:0 30px 60px rgb(0 0 0 / .35)}
+
+.toast{position:fixed;z-index:40;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;font-weight:600;transition:transform .3s cubic-bezier(.16,1,.3,1);max-width:calc(100vw - 32px)}
+.toast.show{transform:translate(-50%,0)}
+
+@media (max-width:860px){
+  .brand span{display:none}
+  .me span{display:none}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:minmax(0,1fr)}
+  .line{grid-template-columns:minmax(0,1fr) 64px 92px 30px}
+  .line .amt{display:none}
+  .line-h{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><img src="assets/logo-white.png" alt="Lynchpin" width="480" height="128"><span>Admin</span></div>
+    <nav class="tabs" role="tablist" aria-label="Sections" id="tabs" hidden>
+      <button class="tab" role="tab" data-view="pipeline" aria-selected="true">Pipeline</button>
+      <button class="tab" role="tab" data-view="prospects" aria-selected="false">Target accounts</button>
+      <button class="tab" role="tab" data-view="catalogue" aria-selected="false">Catalogue</button>
+      <button class="tab" role="tab" data-view="quotes" aria-selected="false">Quotes</button>
+    </nav>
+    <div class="me" id="me"></div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="gate" id="gate">
+    <div class="gate-in">
+      <div class="skel" style="width:280px;height:22px"></div>
+      <div class="skel" style="width:200px;height:16px"></div>
+    </div>
+  </div>
+
+  <section id="v-pipeline" hidden>
+    <div class="head">
+      <div><h1>Lead pipeline</h1><p>Drag a lead between stages, or open it to edit.</p></div>
+      <div class="actions"><button class="btn danger clear-demo" type="button" hidden>Clear demo data</button><button class="btn ghost" type="button" id="import-csv">Import CSV</button><button class="btn red" type="button" id="add-lead">Add lead</button></div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <section id="v-prospects" hidden>
+    <div class="head">
+      <div><h1>Target accounts</h1><p>Large offices with 200 or more chairs that can stay with us for years. Find the right person, reach out, then move them to the pipeline.</p></div>
+      <div class="actions"><button class="btn red" type="button" id="add-prospect">Add account</button></div>
+    </div>
+    <details class="playbook">
+      <summary>Who we target, and the weekly routine</summary>
+      <div class="pb-grid">
+        <div><h3>A good account</h3><ul>
+          <li>200 or more chairs at one site, or several sites in one city</li>
+          <li>A facilities, admin or workplace team that owns furniture upkeep</li>
+          <li>Likely to sign a yearly maintenance contract, not a one-off repair</li>
+          <li>Looks like who we already serve: Wipro, CBRE, Colliers, Embassy, Indiqube</li>
+        </ul></div>
+        <div><h3>Where to look first</h3><ul>
+          <li><b>Facility management firms</b>: one contract opens many client sites</li>
+          <li><b>Coworking operators</b>: thousands of shared chairs, heavy wear</li>
+          <li><b>Office parks and landlords</b>: tenant services across campuses</li>
+          <li><b>Large IT campuses, hospitals and universities</b></li>
+        </ul></div>
+        <div><h3>Weekly routine</h3><ol>
+          <li><b>Monday</b>: research 10 accounts. Find the facilities or admin head through LinkedIn, the company site, or a referral from a current customer.</li>
+          <li><b>Tuesday to Thursday</b>: reach out. Call, email and LinkedIn, three touches over ten days.</li>
+          <li><b>Friday</b>: review. Move anyone who replied to the pipeline, mark poor fits, plan next week.</li>
+        </ol><p class="hint">Aim for 20 to 40 strong accounts a quarter, not hundreds of small ones.</p></div>
+      </div>
+    </details>
+    <div class="filters">
+      <input type="search" id="p-search" placeholder="Search accounts" aria-label="Search accounts">
+      <select id="p-seg" aria-label="Filter by segment"></select>
+      <select id="p-status" aria-label="Filter by status"></select>
+      <select id="p-prio" aria-label="Filter by priority"><option value="">All priorities</option><option value="A">Priority A</option><option value="B">Priority B</option><option value="C">Priority C</option></select>
+    </div>
+    <div class="funnel" id="funnel"></div>
+    <div id="prospects"></div>
+  </section>
+
+  <section id="v-catalogue" hidden>
+    <div class="head">
+      <div><h1>Catalogue</h1><p>Products and services that quotes and the printed catalogue draw from.</p></div>
+      <div class="actions">
+        <button class="btn danger clear-demo" type="button" hidden>Clear demo data</button><button class="btn ghost" type="button" id="preview-cat">Preview catalogue</button>
+        <button class="btn red" type="button" id="add-prod">Add product</button>
+      </div>
+    </div>
+    <div id="prods"></div>
+  </section>
+
+  <section id="v-quotes" hidden>
+    <div class="head">
+      <div><h1>Quotations</h1><p>Build a quote from the catalogue and send it in the Lynchpin template.</p></div>
+      <div class="actions"><button class="btn danger clear-demo" type="button" hidden>Clear demo data</button><button class="btn red" type="button" id="add-quote">New quote</button></div>
+    </div>
+    <div id="quotes"></div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog" aria-labelledby="dr-title">
+  <div class="dr-h"><h2 id="dr-title"></h2><button class="x" type="button" id="dr-close" aria-label="Close">&times;</button></div>
+  <form class="dr-b" id="dr-body" novalidate></form>
+  <div class="dr-f" id="dr-foot"></div>
+</aside>
+
+<div class="doc-view" id="doc-view" role="dialog" aria-label="Document preview">
+  <div class="doc-bar"><b id="doc-title"></b><div class="actions"><button class="btn red" type="button" id="doc-save">Download PDF</button><button class="btn ghost" type="button" id="doc-close">Close</button></div></div>
+  <div class="doc-frame" id="doc-frame"></div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  var STAGES = [
+    {k:'new', t:'New', c:'#8A8F98'},
+    {k:'contacted', t:'Contacted', c:'#2F6FB5'},
+    {k:'assessment', t:'Assessment booked', c:'#7A4FB5'},
+    {k:'quoted', t:'Quote sent', c:'#B26B00'},
+    {k:'won', t:'Won', c:'#1F7A4D'},
+    {k:'lost', t:'Lost', c:'#A9121A'}
+  ];
+  var TEAM = ['Neelanshu', 'Prashant', 'Khushi'];
+  var TEAM_C = {Neelanshu:'#E3181F', Prashant:'#2F6FB5', Khushi:'#1F7A4D'};
+  var CATS = ['Chairs', 'Sofas', 'Workstations', 'Pedestals', 'Spares', 'Services'];
+  var UNITS = ['piece', 'set', 'job', 'visit', 'hour', 'metre'];
+  var COMPANY = {name:'Lynchpin Associates', line:'Ergonomic Solutions', addr:'22, 3rd floor, 6th cross, Sampige Road, Malleshwaram, Bengaluru 560003', phone:'+91 90366 15441', email:'marketing@lynchpin.co.in'};
+
+  var db = null, user = null, assets = null, downloads = null, meId = null;
+  var state = {leads:[], products:[], quotes:[], prospects:[]}, loaded = {leads:false, products:false, quotes:false, prospects:false};
+  var view = 'pipeline';
+  var $ = function(id){ return document.getElementById(id); };
+  var inr = new Intl.NumberFormat('en-IN', {style:'currency', currency:'INR', maximumFractionDigits:0});
+  var money = function(n){ return inr.format(Math.round(+n || 0)); };
+  var imgSrc = function(v){ return /^assets\//.test(v) ? v : '/_blob/' + v; };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var today = function(){ return new Date().toISOString().slice(0,10); };
+  var addDays = function(d, n){ var x = new Date(d); x.setDate(x.getDate() + n); return x.toISOString().slice(0,10); };
+  var fmtDate = function(d){ return d ? new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : ''; };
+
+  function toast(msg){
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  }
+  function gate(title, body, img){
+    $('gate').hidden = false;
+    $('gate').innerHTML = '<div class="gate-in">' + (img ? '<img src="assets/crew/' + img + '.webp" alt="">' : '') + '<h1></h1><p></p></div>';
+    $('gate').querySelector('h1').textContent = title;
+    $('gate').querySelector('p').textContent = body;
+  }
+  function failWrite(e){
+    toast(e && e.code === 'quota_exceeded' ? 'Storage is full. Delete old quotes or products, then try again.' : 'That did not save. Check your connection and try again.');
+  }
+
+  /* ---------- start: who is here, and may they use the admin ---------- */
+  async function start(){
+    var t = setTimeout(function(){ gate('Still connecting', 'The admin data has not loaded yet. Check your connection, or reload the page.', 'laptop'); }, 10000);
+    if(!window.claude){ clearTimeout(t); gate('Open this in claude.ai', 'The admin runs inside the published Lynchpin Admin page, where your claude.ai sign-in decides who can use it.', 'stand'); return; }
+    db = await claude.use('db');
+    user = await claude.use('user');
+    clearTimeout(t);
+    if(!db){ gate('Sign in to continue', 'Open this page signed in to claude.ai with the account Neelanshu invited.', 'stand'); return; }
+    var me = user ? await user.me() : null;
+    var editor = user ? await user.canEdit() : false;
+    if(!editor){ gate('No access yet', 'Only the Lynchpin team (Neelanshu, Prashant and Khushi) can open the admin. Ask Neelanshu to add you as an Editor.', 'inspect'); return; }
+    meId = me && me.id;
+    if(me){
+      var m = $('me'); m.innerHTML = '<img alt=""><span></span>';
+      m.querySelector('img').src = me.avatarUrl;
+      m.querySelector('span').textContent = me.name || 'Signed in';
+    }
+    assets = await claude.use('assets');
+    downloads = await claude.use('downloads');
+    $('gate').hidden = true; $('tabs').hidden = false;
+    subscribe('leads', 'leads'); subscribe('products', 'products'); subscribe('quotes', 'quotes'); subscribe('prospects', 'prospects');
+    var h = location.hash.slice(1);
+    show(['pipeline','prospects','catalogue','quotes'].indexOf(h) > -1 ? h : 'pipeline');
+  }
+  function subscribe(path, key){
+    var slow = setTimeout(function(){ if(!loaded[key]) toast('Data is slow to load. It will appear when the connection catches up.'); }, 10000);
+    db.collection(path).onSnapshot(function(snap){
+      state[key] = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      if(!snap.metadata.fromCache){ loaded[key] = true; clearTimeout(slow); }
+      render();
+    }, function(){ clearTimeout(slow); loaded[key] = true; render(); toast('Lost the live connection. Reload to reconnect.'); });
+  }
+
+  /* ---------- views ---------- */
+  function show(v){
+    view = v;
+    document.querySelectorAll('.tab').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.view === v); });
+    ['pipeline','prospects','catalogue','quotes'].forEach(function(k){ $('v-' + k).hidden = k !== v; });
+    render();
+  }
+  document.querySelectorAll('.tab').forEach(function(b){ b.addEventListener('click', function(){ show(b.dataset.view); }); });
+  /* Demo items carry demo:true. One click removes every one of them and leaves real data alone */
+  function demoDocs(){
+    return [['leads',state.leads],['products',state.products],['quotes',state.quotes]].reduce(function(all,c){
+      return all.concat(c[1].filter(function(d){ return d.demo; }).map(function(d){ return c[0] + '/' + d.id; }));
+    }, []);
+  }
+  document.querySelectorAll('.clear-demo').forEach(function(b){
+    confirmBtn(b, 'Clear demo data', async function(){
+      var paths = demoDocs();
+      for(var i = 0; i < paths.length; i++) await db.doc(paths[i]).delete();
+      b.disabled = false; b.textContent = 'Clear demo data';
+      toast(paths.length + ' demo items removed');
+    });
+  });
+  function render(){
+    var demo = demoDocs().length;
+    document.querySelectorAll('.clear-demo').forEach(function(b){ b.hidden = !demo; });
+    if(view === 'pipeline') renderBoard();
+    if(view === 'catalogue') renderProducts();
+    if(view === 'quotes') renderQuotes();
+    if(view === 'prospects') renderProspects();
+  }
+  function loadingBlock(){ return '<div class="grid">' + '<div class="skel" style="height:220px"></div>'.repeat(4) + '</div>'; }
+
+  /* ---------- pipeline ---------- */
+  function renderBoard(){
+    var open = state.leads.filter(function(l){ return l.stage !== 'won' && l.stage !== 'lost'; });
+    var month = new Date().toISOString().slice(0,7);
+    var won = state.leads.filter(function(l){ return l.stage === 'won' && (l.updatedAt || '').slice(0,7) === month; });
+    var stats = [
+      [open.length, 'open leads'],
+      [money(open.reduce(function(s,l){ return s + (+l.value || 0); }, 0)), 'open pipeline value'],
+      [state.leads.filter(function(l){ return l.stage === 'quoted'; }).length, 'quotes waiting on a reply'],
+      [money(won.reduce(function(s,l){ return s + (+l.value || 0); }, 0)), 'won this month']
+    ];
+    $('stats').innerHTML = stats.map(function(s){ return '<div class="stat"><b>' + esc(s[0]) + '</b><span>' + esc(s[1]) + '</span></div>'; }).join('');
+    if(!loaded.leads){ $('board').innerHTML = STAGES.map(function(){ return '<div class="col"><div class="skel" style="height:90px"></div></div>'; }).join(''); return; }
+    $('board').innerHTML = STAGES.map(function(s){
+      var list = state.leads.filter(function(l){ return (l.stage || 'new') === s.k; }).sort(function(a,b){ return (b.updatedAt || '').localeCompare(a.updatedAt || ''); });
+      var total = list.reduce(function(t,l){ return t + (+l.value || 0); }, 0);
+      return '<div class="col" data-stage="' + s.k + '"><div class="col-h"><span>' + s.t + '<i>' + list.length + '</i></span><small class="num">' + (total ? money(total) : '') + '</small></div>' +
+        (list.length ? list.map(function(l){
+          return '<article class="lead" draggable="true" tabindex="0" data-id="' + l.id + '"><h3>' + esc(l.company || 'Untitled lead') + (l.demo ? '<span class="demo-tag">Demo</span>' : '') + '</h3><p>' + esc([l.contact, l.city].filter(Boolean).join(', ')) + '</p>' +
+            (l.item ? '<p>' + esc(l.item) + '</p>' : '') +
+            '<div class="lead-f"><span class="who"><i>' + esc((l.owner || '').charAt(0)) + '</i>' + esc(l.owner || 'Unassigned') + '</span><b>' + (l.value ? money(l.value) : '') + '</b></div></article>';
+        }).join('') : (s.k === 'new' && !state.leads.length ? '<div class="empty-col">No leads yet. Use Add lead to log the first enquiry.</div>' : '<div class="empty-col">Drop a lead here</div>')) +
+        '</div>';
+    }).join('');
+    $('board').querySelectorAll('.lead').forEach(function(card){
+      card.addEventListener('click', function(){ leadForm(state.leads.find(function(l){ return l.id === card.dataset.id; })); });
+      card.addEventListener('keydown', function(e){ if(e.key === 'Enter') card.click(); });
+      card.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text/plain', card.dataset.id); card.classList.add('drag'); });
+      card.addEventListener('dragend', function(){ card.classList.remove('drag'); });
+    });
+    $('board').querySelectorAll('.col').forEach(function(col){
+      col.addEventListener('dragover', function(e){ e.preventDefault(); col.classList.add('over'); });
+      col.addEventListener('dragleave', function(){ col.classList.remove('over'); });
+      col.addEventListener('drop', function(e){
+        e.preventDefault(); col.classList.remove('over');
+        var id = e.dataTransfer.getData('text/plain'), lead = state.leads.find(function(l){ return l.id === id; });
+        if(lead && lead.stage !== col.dataset.stage) db.doc('leads/' + id).update({stage:col.dataset.stage, updatedAt:new Date().toISOString()}).catch(failWrite);
+      });
+    });
+  }
+  $('add-lead').addEventListener('click', function(){ leadForm(null); });
+
+  function leadForm(lead){
+    var l = lead || {stage:'new', owner:''};
+    openDrawer(lead ? 'Edit lead' : 'New lead', false,
+      '<div class="row">' + fld('company','Company',l.company,'text',true) + fld('contact','Contact person',l.contact) + '</div>' +
+      '<div class="row">' + fld('phone','Phone',l.phone,'tel') + fld('email','Email',l.email,'email') + '</div>' +
+      '<div class="row">' + fld('city','City',l.city) + fld('value','Estimated value (₹)',l.value,'number') + '</div>' +
+      fld('item','What needs attention',l.item) +
+      '<div class="row">' + sel('stage','Stage',STAGES.map(function(s){ return [s.k,s.t]; }),l.stage) + sel('owner','Owner',[['','Unassigned']].concat(TEAM.map(function(t){ return [t,t]; })),l.owner) + '</div>' +
+      area('notes','Notes',l.notes) + '<p class="err" id="f-err"></p>',
+      (lead ? '<button class="btn danger" type="button" id="del">Delete lead</button>' : '') +
+      '<div class="actions">' + (lead ? '<button class="btn ghost" type="button" id="to-quote">Create quote</button>' : '') + '<button class="btn" type="submit" form="dr-body">Save lead</button></div>');
+    $('dr-body').onsubmit = async function(e){
+      e.preventDefault();
+      var d = formData();
+      if(!d.company.trim()){ $('f-err').textContent = 'Add the company name.'; $('f-company').focus(); return; }
+      d.value = d.value === '' ? null : +d.value;
+      d.updatedAt = new Date().toISOString();
+      try{
+        if(lead) await db.doc('leads/' + lead.id).update(d);
+        else { d.createdAt = d.updatedAt; d.createdBy = meId; await db.collection('leads').add(d); }
+        closeDrawer(); toast(lead ? 'Lead updated' : 'Lead added');
+      } catch(err){ failWrite(err); }
+    };
+    if(lead){
+      confirmBtn($('del'), 'Delete lead', async function(){ await db.doc('leads/' + lead.id).delete(); closeDrawer(); toast('Lead deleted'); });
+      $('to-quote').onclick = function(){ closeDrawer(); show('quotes'); quoteForm(null, lead); };
+    }
+  }
+
+  /* ---------- CSV import: any spreadsheet export, columns matched by name, checked before saving ---------- */
+  var FIELDS = [
+    ['company','Company',['company','company name','organisation','organization','client','account','business']],
+    ['contact','Contact person',['contact','contact person','name','full name','contact name','person']],
+    ['phone','Phone',['phone','mobile','phone number','contact number','mobile number','whatsapp','tel']],
+    ['email','Email',['email','e-mail','email address','mail']],
+    ['city','City',['city','location','town','place']],
+    ['item','What needs attention',['item','requirement','need','needs','service','product','what needs attention','enquiry','inquiry','furniture']],
+    ['value','Estimated value',['value','amount','budget','deal value','estimated value','price']],
+    ['stage','Stage',['stage','status','pipeline stage']],
+    ['owner','Owner',['owner','assigned to','assignee','sales person','salesperson']],
+    ['notes','Notes',['notes','note','remarks','comments','comment','description']]
+  ];
+  function parseCSV(text){
+    var rows = [], row = [], cell = '', q = false;
+    text = text.replace(/^﻿/, '');
+    for(var i = 0; i < text.length; i++){
+      var ch = text[i];
+      if(q){
+        if(ch === '"'){ if(text[i + 1] === '"'){ cell += '"'; i++; } else q = false; }
+        else cell += ch;
+      } else if(ch === '"') q = true;
+      else if(ch === ',' || ch === ';' || ch === '\t'){ row.push(cell); cell = ''; }
+      else if(ch === '\n' || ch === '\r'){
+        if(ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); cell = '';
+        if(row.some(function(c){ return c.trim(); })) rows.push(row);
+        row = [];
+      } else cell += ch;
+    }
+    row.push(cell);
+    if(row.some(function(c){ return c.trim(); })) rows.push(row);
+    return rows;
+  }
+  /* Exact header names win; a partial match is the fallback, and a column already matched to another field is never reused */
+  function guessColumn(head, aliases, used){
+    var h = head.map(function(x){ return x.trim().toLowerCase(); }), free = function(i){ return i > -1 && !used[i]; };
+    for(var a = 0; a < aliases.length; a++){ var i = h.indexOf(aliases[a]); if(free(i)) return i; }
+    for(var b = 0; b < aliases.length; b++){ var j = h.findIndex(function(x,k){ return !used[k] && x.indexOf(aliases[b]) > -1; }); if(j > -1) return j; }
+    return -1;
+  }
+  function stageFrom(v){
+    v = (v || '').trim().toLowerCase();
+    var hit = STAGES.find(function(s){ return s.k === v || s.t.toLowerCase() === v; });
+    if(hit) return hit.k;
+    if(/quot/.test(v)) return 'quoted';
+    if(/assess|visit|booked/.test(v)) return 'assessment';
+    if(/contact|call/.test(v)) return 'contacted';
+    if(/won|closed|deal/.test(v)) return 'won';
+    if(/lost|dead|reject/.test(v)) return 'lost';
+    return 'new';
+  }
+  function ownerFrom(v){
+    v = (v || '').trim().toLowerCase();
+    return TEAM.find(function(t){ return v && t.toLowerCase().indexOf(v.split(' ')[0]) === 0; }) || '';
+  }
+  $('import-csv').addEventListener('click', function(){
+    openDrawer('Import leads from CSV', true,
+      '<p class="hint">Export a sheet from Excel, Google Sheets or an ads form as CSV. The first row should hold column names like Company, Name, Phone, City.</p>' +
+      '<div class="field"><label for="f-csv">CSV file</label><input type="file" id="f-csv" accept=".csv,text/csv,text/plain"></div>' +
+      '<div id="csv-step"></div><p class="err" id="f-err"></p>',
+      (downloads ? '<button class="btn ghost" type="button" id="csv-template">Download template</button>' : '') + '<div class="actions"><button class="btn" type="button" id="csv-go" disabled>Import leads</button></div>');
+    if(downloads) $('csv-template').onclick = async function(){
+      var sample = 'Company,Contact person,Phone,Email,City,What needs attention,Estimated value,Stage,Owner,Notes\n';
+      try { await downloads.save({filename:'lynchpin-leads-template.csv', data:sample}); } catch(e){ if(e.code !== 'declined') toast('The template could not be saved here.'); }
+    };
+    var parsed = null;
+    $('f-csv').onchange = function(e){
+      var f = e.target.files[0]; if(!f) return;
+      $('f-err').textContent = '';
+      if(f.size > 2 * 1024 * 1024){ $('f-err').textContent = 'That file is over 2 MB. Split it into smaller files.'; return; }
+      f.text().then(function(text){
+        var rows = parseCSV(text);
+        if(rows.length < 2){ $('f-err').textContent = 'No rows found. Check the file has a header row and at least one lead.'; return; }
+        parsed = {head:rows[0], rows:rows.slice(1, 501), extra:Math.max(0, rows.length - 501)};
+        drawMapping();
+      }).catch(function(){ $('f-err').textContent = 'That file could not be read. Save it as CSV (UTF-8) and try again.'; });
+    };
+    function drawMapping(){
+      var opts = '<option value="-1">Skip</option>' + parsed.head.map(function(h,i){ return '<option value="' + i + '">' + esc(h || 'Column ' + (i + 1)) + '</option>'; }).join('');
+      $('csv-step').innerHTML = '<div class="lab" style="margin-top:6px">Match the columns</div><div class="row">' +
+        FIELDS.map(function(f){
+          return '<div class="field"><label for="m-' + f[0] + '">' + f[1] + (f[0] === 'company' ? ' <span class="red">*</span>' : '') + '</label><select id="m-' + f[0] + '">' + opts + '</select></div>';
+        }).join('') + '</div><div id="csv-preview"></div>';
+      var used = {};
+      FIELDS.forEach(function(f){
+        var sel = $('m-' + f[0]), col = guessColumn(parsed.head, f[2], used);
+        if(col > -1) used[col] = 1;
+        sel.value = col; sel.onchange = drawPreview;
+      });
+      drawPreview();
+    }
+    function leadsFromFile(){
+      var map = {}; FIELDS.forEach(function(f){ map[f[0]] = +$('m-' + f[0]).value; });
+      var have = {}; state.leads.forEach(function(l){ have[(l.company || '').trim().toLowerCase() + '|' + (l.phone || '').replace(/\D/g,'')] = 1; });
+      var out = [], skipped = 0, dupes = 0, seen = {};
+      parsed.rows.forEach(function(r){
+        var g = function(k){ return map[k] > -1 ? (r[map[k]] || '').trim() : ''; };
+        var d = {company:g('company'), contact:g('contact'), phone:g('phone'), email:g('email'), city:g('city'), item:g('item'), notes:g('notes'),
+          value:g('value') ? (+g('value').replace(/[^\d.]/g,'') || null) : null, stage:stageFrom(g('stage')), owner:ownerFrom(g('owner'))};
+        if(!d.company){ skipped++; return; }
+        var key = d.company.toLowerCase() + '|' + d.phone.replace(/\D/g,'');
+        if(have[key] || seen[key]){ dupes++; return; }
+        seen[key] = 1; out.push(d);
+      });
+      return {list:out, skipped:skipped, dupes:dupes};
+    }
+    function drawPreview(){
+      var res = leadsFromFile();
+      $('csv-go').disabled = !res.list.length;
+      $('csv-go').textContent = res.list.length ? 'Import ' + res.list.length + ' lead' + (res.list.length === 1 ? '' : 's') : 'Import leads';
+      var notes = [];
+      if(res.dupes) notes.push(res.dupes + ' already in the pipeline or repeated, so they will be left out');
+      if(res.skipped) notes.push(res.skipped + ' have no company name and will be skipped');
+      if(parsed.extra) notes.push('only the first 500 rows are read; import the remaining ' + parsed.extra + ' in a second file');
+      $('csv-preview').innerHTML = '<div class="lab" style="margin-top:8px">Preview</div>' + (notes.length ? '<p class="hint">' + esc(notes.join('. ')) + '.</p>' : '') +
+        (res.list.length ? '<div class="table-wrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Phone</th><th>City</th><th>Stage</th><th class="r">Value</th></tr></thead><tbody>' +
+          res.list.slice(0, 6).map(function(l){ return '<tr><td>' + esc(l.company) + '</td><td>' + esc(l.contact) + '</td><td>' + esc(l.phone) + '</td><td>' + esc(l.city) + '</td><td>' + esc(STAGES.find(function(s){ return s.k === l.stage; }).t) + '</td><td class="r">' + (l.value ? money(l.value) : '') + '</td></tr>'; }).join('') +
+          '</tbody></table></div>' + (res.list.length > 6 ? '<p class="hint">and ' + (res.list.length - 6) + ' more.</p>' : '') : '<p class="hint">Nothing to import yet. Match the Company column.</p>');
+    }
+    $('csv-go').onclick = async function(){
+      var res = leadsFromFile(), btn = this, done = 0;
+      btn.disabled = true;
+      var now = new Date().toISOString();
+      /* One write at a time keeps the store happy and lets the button show progress */
+      for(var i = 0; i < res.list.length; i++){
+        var d = Object.assign(res.list[i], {createdAt:now, updatedAt:now, createdBy:meId, source:'CSV import'});
+        try { await db.collection('leads').add(d); done++; btn.textContent = 'Importing ' + done + ' of ' + res.list.length + '…'; }
+        catch(err){ failWrite(err); break; }
+      }
+      closeDrawer();
+      toast(done === res.list.length ? done + ' lead' + (done === 1 ? '' : 's') + ' imported' : 'Imported ' + done + ' of ' + res.list.length + ' leads. Try the rest again.');
+    };
+  });
+
+  /* ---------- target accounts: research, reach out, then hand over to the pipeline ---------- */
+  var P_STATUS = [
+    {k:'research', t:'To research'}, {k:'found', t:'Contact found'}, {k:'reached', t:'Reached out'},
+    {k:'meeting', t:'Meeting set'}, {k:'pipeline', t:'In pipeline'}, {k:'nofit', t:'Not a fit'}
+  ];
+  var SEGMENTS = ['Facility management', 'Coworking', 'Office parks and landlords', 'IT and GCC campuses', 'Hospitals', 'Universities', 'Banks and BFSI', 'Other'];
+  var pFilter = {status:''};
+  $('p-seg').innerHTML = '<option value="">All segments</option>' + SEGMENTS.map(function(x){ return '<option>' + esc(x) + '</option>'; }).join('');
+  $('p-status').innerHTML = '<option value="">All statuses</option>' + P_STATUS.map(function(x){ return '<option value="' + x.k + '">' + x.t + '</option>'; }).join('');
+  ['p-search','p-seg','p-status','p-prio'].forEach(function(id){ $(id).addEventListener('input', function(){ if(id === 'p-status') pFilter.status = $(id).value; renderProspects(); }); });
+  function isNew(p){ return p.foundBy === 'Daily scout' && Date.now() - Date.parse(p.createdAt || 0) < 36 * 3600 * 1000; }
+  function safeUrl(u){ return /^https?:\/\//i.test(u || '') ? u : ''; }
+  function pStatus(k){ return (P_STATUS.find(function(x){ return x.k === k; }) || P_STATUS[0]).t; }
+  function renderProspects(){
+    var box = $('prospects');
+    if(!loaded.prospects){ box.innerHTML = '<div class="skel" style="height:240px"></div>'; return; }
+    $('funnel').innerHTML = [{k:'', t:'All'}].concat(P_STATUS).map(function(x){
+      var n = x.k ? state.prospects.filter(function(p){ return (p.status || 'research') === x.k; }).length : state.prospects.length;
+      return '<button type="button" data-k="' + x.k + '" aria-pressed="' + (pFilter.status === x.k) + '">' + x.t + '<b>' + n + '</b></button>';
+    }).join('');
+    $('funnel').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ pFilter.status = b.dataset.k; $('p-status').value = b.dataset.k; renderProspects(); }; });
+    if(!state.prospects.length){
+      box.innerHTML = '<div class="empty"><h2>No target accounts yet</h2><p>Add the large offices you want as long-term customers. Start with facility management firms and coworking operators: one contract covers many sites.</p><button class="btn red" type="button" id="empty-p">Add the first account</button></div>';
+      $('empty-p').onclick = function(){ prospectForm(null); };
+      return;
+    }
+    var q = $('p-search').value.trim().toLowerCase(), seg = $('p-seg').value, pr = $('p-prio').value;
+    var rank = {A:0, B:1, C:2};
+    var list = state.prospects.filter(function(p){
+      return (!pFilter.status || (p.status || 'research') === pFilter.status) && (!seg || p.segment === seg) && (!pr || p.priority === pr) &&
+        (!q || [p.company, p.city, p.contactName, p.segment].join(' ').toLowerCase().indexOf(q) > -1);
+    }).sort(function(a,b){ return (rank[a.priority] ?? 3) - (rank[b.priority] ?? 3) || (a.company || '').localeCompare(b.company || ''); });
+    if(!list.length){ box.innerHTML = '<div class="empty"><p>No accounts match these filters.</p></div>'; return; }
+    box.innerHTML = '<div class="table-wrap"><table><thead><tr><th></th><th>Account</th><th>City</th><th>Who to reach</th><th>Status</th><th>Next step</th><th>Owner</th></tr></thead><tbody>' +
+      list.map(function(p){
+        return '<tr tabindex="0" data-id="' + p.id + '"><td><span class="prio ' + esc(p.priority || '') + '">' + esc(p.priority || '-') + '</span></td>' +
+          '<td><b>' + esc(p.company) + '</b>' + (isNew(p) ? '<span class="new-tag">New</span>' : '') + '<div class="seg">' + esc(p.segment || '') + '</div>' + (p.signal ? '<div class="signal">' + esc(p.signal) + (safeUrl(p.sourceUrl) ? ' <a href="' + esc(safeUrl(p.sourceUrl)) + '" target="_blank" rel="noopener">Source</a>' : '') + '</div>' : '') + '</td><td>' + esc(p.city || '') + '</td>' +
+          '<td><div class="dm">' + (p.contactName ? '<span>' + esc(p.contactName) + '</span><small>' + esc([p.contactRole, p.contactPhone].filter(Boolean).join(', ')) + '</small>' : '<span class="find">Find: ' + esc(p.targetRole || 'Head of Facilities') + '</span>') + '</div></td>' +
+          '<td>' + esc(pStatus(p.status)) + '</td><td class="wrap">' + esc(p.nextStep || '') + (p.nextDate ? '<div class="seg">' + fmtDate(p.nextDate) + '</div>' : '') + '</td>' +
+          '<td><span class="who"><i>' + esc((p.owner || '').charAt(0)) + '</i>' + esc(p.owner || '') + '</span></td></tr>';
+      }).join('') + '</tbody></table></div>';
+    box.querySelectorAll('.signal a').forEach(function(a){ a.addEventListener('click', function(e){ e.stopPropagation(); }); });
+    box.querySelectorAll('tbody tr').forEach(function(tr){
+      tr.addEventListener('click', function(){ prospectForm(state.prospects.find(function(p){ return p.id === tr.dataset.id; })); });
+      tr.addEventListener('keydown', function(e){ if(e.key === 'Enter') tr.click(); });
+    });
+  }
+  $('add-prospect').addEventListener('click', function(){ prospectForm(null); });
+  function prospectForm(pr){
+    var p = pr || {status:'research', priority:'B', segment:SEGMENTS[0]};
+    openDrawer(pr ? p.company : 'New target account', false,
+      '<div class="row">' + fld('company','Company',p.company,'text',true) + sel('segment','Segment',SEGMENTS.map(function(x){ return [x,x]; }),p.segment) + '</div>' +
+      '<div class="row">' + fld('city','City',p.city) + fld('scale','Size (sites, seats)',p.scale) + '</div>' +
+      area('why','Why they fit',p.why) +
+      '<div class="row">' + fld('signal','Buying signal',p.signal) + fld('sourceUrl','Source link',p.sourceUrl,'url') + '</div>' +
+      '<div class="lab" style="margin-top:4px">Decision-maker</div>' +
+      fld('targetRole','Role to reach',p.targetRole) +
+      '<div class="row">' + fld('contactName','Name',p.contactName) + fld('contactRole','Their title',p.contactRole) + '</div>' +
+      '<div class="row">' + fld('contactPhone','Work phone',p.contactPhone,'tel') + fld('contactEmail','Work email',p.contactEmail,'email') + '</div>' +
+      fld('source','Where we found them',p.source) +
+      '<p class="hint">Save only contact details the person shared for work, such as on a business card, a company page or a call.</p>' +
+      '<div class="row">' + sel('status','Status',P_STATUS.map(function(x){ return [x.k,x.t]; }),p.status) + sel('priority','Priority',[['A','A: go now'],['B','B: this quarter'],['C','C: later']],p.priority) + '</div>' +
+      '<div class="row">' + fld('nextStep','Next step',p.nextStep) + fld('nextDate','Due',p.nextDate,'date') + '</div>' +
+      sel('owner','Owner',[['','Unassigned']].concat(TEAM.map(function(t){ return [t,t]; })),p.owner) +
+      area('notes','Notes',p.notes) + '<p class="err" id="f-err"></p>',
+      (pr ? '<button class="btn danger" type="button" id="del">Delete</button>' : '') +
+      '<div class="actions">' + (pr && p.status !== 'pipeline' ? '<button class="btn ghost" type="button" id="to-lead">Move to pipeline</button>' : '') + '<button class="btn" type="submit" form="dr-body">Save account</button></div>');
+    $('dr-body').onsubmit = async function(e){
+      e.preventDefault();
+      var d = formData();
+      if(!d.company.trim()){ $('f-err').textContent = 'Add the company name.'; $('f-company').focus(); return; }
+      d.updatedAt = new Date().toISOString();
+      try{
+        if(pr) await db.doc('prospects/' + pr.id).update(d); else { d.createdAt = d.updatedAt; d.createdBy = meId; await db.collection('prospects').add(d); }
+        closeDrawer(); toast(pr ? 'Account updated' : 'Account added');
+      } catch(err){ failWrite(err); }
+    };
+    if(pr){
+      confirmBtn($('del'), 'Delete', async function(){ await db.doc('prospects/' + pr.id).delete(); closeDrawer(); toast('Account removed'); });
+      if($('to-lead')) $('to-lead').onclick = async function(){
+        var d = formData(), now = new Date().toISOString();
+        try{
+          var ref = await db.collection('leads').add({company:d.company, contact:d.contactName, phone:d.contactPhone, email:d.contactEmail, city:d.city,
+            item:d.scale ? 'Large account: ' + d.scale : 'Large account', stage:'contacted', owner:d.owner, notes:d.notes, source:'Target accounts', prospectId:pr.id, createdAt:now, updatedAt:now, createdBy:meId});
+          await db.doc('prospects/' + pr.id).update(Object.assign(d, {status:'pipeline', leadId:ref.id, updatedAt:now}));
+          closeDrawer(); toast(d.company + ' moved to the pipeline'); show('pipeline');
+        } catch(err){ failWrite(err); }
+      };
+    }
+  }
+
+  /* ---------- catalogue ---------- */
+  function renderProducts(){
+    var box = $('prods');
+    if(!loaded.products){ box.innerHTML = loadingBlock(); return; }
+    if(!state.products.length){
+      box.innerHTML = '<div class="empty"><img src="assets/crew/walk-roll.webp" alt="" width="120"><h2>The catalogue is empty</h2><p>Add the chairs, sofas, spares and services Lynchpin offers. Quotes pick from this list, and the printed catalogue is built from it.</p><button class="btn red" type="button" id="empty-add">Add the first product</button></div>';
+      $('empty-add').onclick = function(){ productForm(null); };
+      return;
+    }
+    var list = state.products.slice().sort(function(a,b){ return CATS.indexOf(a.category) - CATS.indexOf(b.category) || (a.name || '').localeCompare(b.name || ''); });
+    box.innerHTML = '<div class="grid">' + list.map(function(p){
+      return '<article class="prod" tabindex="0" data-id="' + p.id + '"><div class="prod-img"' + (p.image ? ' style="background-image:url(' + esc(imgSrc(p.image)) + ')"' : '') + '>' + (p.image ? '' : 'No photo') + '</div>' +
+        '<div class="prod-b"><span class="cat">' + esc(p.category) + (p.demo ? '<span class="demo-tag">Demo</span>' : '') + '</span><h3>' + esc(p.name) + '</h3><span class="price">' + (p.price != null && p.price !== '' ? money(p.price) + ' <small class="hint">per ' + esc(p.unit || 'piece') + '</small>' : '<small class="hint">Price on request</small>') + '</span></div></article>';
+    }).join('') + '</div>';
+    box.querySelectorAll('.prod').forEach(function(el){
+      el.addEventListener('click', function(){ productForm(state.products.find(function(p){ return p.id === el.dataset.id; })); });
+      el.addEventListener('keydown', function(e){ if(e.key === 'Enter') el.click(); });
+    });
+  }
+  $('add-prod').addEventListener('click', function(){ productForm(null); });
+
+  function productForm(prod){
+    var p = prod || {category:'Chairs', unit:'piece'}, image = p.image || null;
+    openDrawer(prod ? 'Edit product' : 'New product', false,
+      fld('name','Name',p.name,'text',true) +
+      '<div class="row">' + sel('category','Category',CATS.map(function(c){ return [c,c]; }),p.category) + sel('unit','Priced per',UNITS.map(function(u){ return [u,u]; }),p.unit) + '</div>' +
+      '<div class="row">' + fld('price','Price (₹, before GST)',p.price,'number') + fld('sku','Code (optional)',p.sku) + '</div>' +
+      area('description','Description',p.description) +
+      '<div class="field"><span class="lab">Photo</span>' + (assets ? '<div class="upload"><div class="thumb" id="thumb"' + (image ? ' style="background-image:url(' + esc(imgSrc(image)) + ')"' : '') + '></div><input type="file" id="f-photo" accept="image/png,image/jpeg,image/webp"></div><span class="hint">PNG, JPG or WebP. A clean photo on a plain background prints best.</span>' : '<span class="hint">Only Editors can add photos.</span>') + '</div>' +
+      '<p class="err" id="f-err"></p>',
+      (prod ? '<button class="btn danger" type="button" id="del">Delete product</button>' : '') + '<div class="actions"><button class="btn" type="submit" form="dr-body">Save product</button></div>');
+    if(assets) $('f-photo').onchange = async function(e){
+      var f = e.target.files[0]; if(!f) return;
+      $('f-err').textContent = 'Uploading photo…';
+      try { var r = await assets.upload(f); image = r.id; $('thumb').style.backgroundImage = 'url(' + r.url + ')'; $('f-err').textContent = ''; }
+      catch(err){ $('f-err').textContent = err.code === 'too_large' ? 'That photo is over 20 MB. Use a smaller one.' : err.code === 'unsupported_type' ? 'Use a PNG, JPG or WebP photo.' : 'The photo did not upload. Try again.'; }
+    };
+    $('dr-body').onsubmit = async function(e){
+      e.preventDefault();
+      var d = formData(); delete d.photo;
+      if(!d.name.trim()){ $('f-err').textContent = 'Add the product name.'; $('f-name').focus(); return; }
+      d.price = d.price === '' ? null : +d.price; d.image = image; d.updatedAt = new Date().toISOString();
+      try{
+        if(prod) await db.doc('products/' + prod.id).update(d); else { d.createdAt = d.updatedAt; await db.collection('products').add(d); }
+        closeDrawer(); toast(prod ? 'Product updated' : 'Product added');
+      } catch(err){ failWrite(err); }
+    };
+    if(prod) confirmBtn($('del'), 'Delete product', async function(){ await db.doc('products/' + prod.id).delete(); closeDrawer(); toast('Product removed from the catalogue'); });
+  }
+
+  /* ---------- quotes ---------- */
+  function quoteTotals(q){
+    var sub = (q.lines || []).reduce(function(s,l){ return s + (+l.qty || 0) * (+l.price || 0); }, 0);
+    var disc = sub * (+q.discount || 0) / 100, taxable = sub - disc, gst = q.gst ? taxable * .18 : 0;
+    return {sub:sub, disc:disc, taxable:taxable, gst:gst, total:taxable + gst};
+  }
+  function renderQuotes(){
+    var box = $('quotes');
+    if(!loaded.quotes){ box.innerHTML = '<div class="skel" style="height:220px"></div>'; return; }
+    if(!state.quotes.length){
+      box.innerHTML = '<div class="empty"><img src="assets/crew/laptop.webp" alt="" width="120"><h2>No quotations yet</h2><p>Start a quote from a lead in the pipeline, or here. Lines come from the catalogue, and GST is worked out for you.</p><button class="btn red" type="button" id="empty-q">Create the first quote</button></div>';
+      $('empty-q').onclick = function(){ quoteForm(null); };
+      return;
+    }
+    var list = state.quotes.slice().sort(function(a,b){ return (b.number || '').localeCompare(a.number || ''); });
+    box.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Quote</th><th>Client</th><th>Date</th><th>Status</th><th class="r">Total</th></tr></thead><tbody>' +
+      list.map(function(q){ return '<tr tabindex="0" data-id="' + q.id + '"><td class="num"><b>' + esc(q.number) + '</b>' + (q.demo ? '<span class="demo-tag">Demo</span>' : '') + '</td><td>' + esc((q.client || {}).company) + '</td><td>' + fmtDate(q.date) + '</td><td><span class="status s-' + esc(q.status || 'draft') + '">' + esc(cap(q.status || 'draft')) + '</span></td><td class="r num"><b>' + money(quoteTotals(q).total) + '</b></td></tr>'; }).join('') +
+      '</tbody></table></div>';
+    box.querySelectorAll('tbody tr').forEach(function(tr){
+      tr.addEventListener('click', function(){ quoteForm(state.quotes.find(function(q){ return q.id === tr.dataset.id; })); });
+      tr.addEventListener('keydown', function(e){ if(e.key === 'Enter') tr.click(); });
+    });
+  }
+  $('add-quote').addEventListener('click', function(){ quoteForm(null); });
+  function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+  function nextNumber(){
+    var y = new Date().getFullYear(), max = 0;
+    state.quotes.forEach(function(q){ var m = /^LP-(\d{4})-(\d+)$/.exec(q.number || ''); if(m && +m[1] === y) max = Math.max(max, +m[2]); });
+    return 'LP-' + y + '-' + String(max + 1).padStart(3, '0');
+  }
+
+  function quoteForm(quote, fromLead){
+    var q = quote ? JSON.parse(JSON.stringify(quote)) : {number:nextNumber(), date:today(), validUntil:addDays(today(), 15), status:'draft', gst:true, discount:0, lines:[], leadId:fromLead ? fromLead.id : '',
+      client:fromLead ? {company:fromLead.company || '', contact:fromLead.contact || '', phone:fromLead.phone || '', email:fromLead.email || '', city:fromLead.city || ''} : {company:'', contact:'', phone:'', email:'', city:''},
+      notes:'Prices in Indian rupees. Work is carried out at your site by trained Lynchpin service teams. Spares carry our warranty.'};
+    if(!q.lines.length) q.lines.push({name:'', qty:1, price:0});
+    var prodOpts = '<option value="">Pick from the catalogue…</option>' + state.products.map(function(p){ return '<option value="' + p.id + '">' + esc(p.name) + (p.price != null ? ' · ' + money(p.price) : '') + '</option>'; }).join('');
+    openDrawer((quote ? 'Quote ' : 'New quote ') + q.number, true,
+      '<div class="row">' + sel('leadId','Linked lead',[['','No linked lead']].concat(state.leads.map(function(l){ return [l.id, l.company || 'Untitled lead']; })),q.leadId) + sel('status','Status',[['draft','Draft'],['sent','Sent'],['accepted','Accepted'],['declined','Declined']],q.status) + '</div>' +
+      '<div class="row">' + fld('c_company','Client company',q.client.company,'text',true) + fld('c_contact','Contact person',q.client.contact) + '</div>' +
+      '<div class="row">' + fld('c_phone','Phone',q.client.phone,'tel') + fld('c_email','Email',q.client.email,'email') + '</div>' +
+      '<div class="row">' + fld('c_city','City',q.client.city) + '<div class="row">' + fld('date','Date',q.date,'date') + fld('validUntil','Valid until',q.validUntil,'date') + '</div></div>' +
+      '<div class="field"><span class="lab">Items</span><div class="lines"><div class="line line-h"><span>Item</span><span>Qty</span><span>Rate (₹)</span><span class="amt">Amount</span><span></span></div><div id="q-lines"></div></div>' +
+      '<div class="actions" style="margin-top:6px"><select id="q-pick" aria-label="Add an item from the catalogue">' + prodOpts + '</select><button class="btn ghost" type="button" id="q-custom">Add custom line</button></div></div>' +
+      '<div class="row">' + fld('discount','Discount (%)',q.discount,'number') + '<div class="field"><span class="lab">GST</span><label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="f-gst" style="width:auto"' + (q.gst ? ' checked' : '') + '> Add 18% GST</label></div></div>' +
+      '<div class="totals" id="q-totals"></div>' +
+      area('notes','Terms and notes',q.notes) + '<p class="err" id="f-err"></p>',
+      (quote ? '<button class="btn danger" type="button" id="del">Delete quote</button>' : '') +
+      '<div class="actions"><button class="btn ghost" type="button" id="q-preview">Preview</button><button class="btn" type="submit" form="dr-body">Save quote</button></div>');
+
+    function drawLines(){
+      $('q-lines').innerHTML = q.lines.map(function(l,i){
+        return '<div class="line" data-i="' + i + '"><input aria-label="Item" data-k="name" value="' + esc(l.name) + '" placeholder="Describe the item"><input aria-label="Quantity" data-k="qty" type="number" min="0" step="1" value="' + esc(l.qty) + '"><input aria-label="Rate" data-k="price" type="number" min="0" step="1" value="' + esc(l.price) + '"><span class="amt">' + money((+l.qty || 0) * (+l.price || 0)) + '</span><button class="x" type="button" aria-label="Remove line" data-rm="' + i + '">&times;</button></div>';
+      }).join('') || '<p class="hint">No items yet.</p>';
+      $('q-lines').querySelectorAll('input').forEach(function(inp){
+        inp.addEventListener('input', function(){
+          var i = +inp.closest('.line').dataset.i, k = inp.dataset.k;
+          q.lines[i][k] = k === 'name' ? inp.value : (inp.value === '' ? '' : +inp.value);
+          inp.closest('.line').querySelector('.amt').textContent = money((+q.lines[i].qty || 0) * (+q.lines[i].price || 0));
+          drawTotals();
+        });
+      });
+      $('q-lines').querySelectorAll('[data-rm]').forEach(function(b){ b.onclick = function(){ q.lines.splice(+b.dataset.rm, 1); drawLines(); }; });
+      drawTotals();
+    }
+    function drawTotals(){
+      q.discount = +$('f-discount').value || 0; q.gst = $('f-gst').checked;
+      var t = quoteTotals(q);
+      $('q-totals').innerHTML = '<div><span>Subtotal</span><span>' + money(t.sub) + '</span></div>' + (t.disc ? '<div><span>Discount ' + q.discount + '%</span><span>−' + money(t.disc) + '</span></div>' : '') + (q.gst ? '<div><span>GST 18%</span><span>' + money(t.gst) + '</span></div>' : '') + '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
+    }
+    function collect(){
+      var d = formData();
+      q.leadId = d.leadId; q.status = d.status; q.date = d.date; q.validUntil = d.validUntil; q.notes = d.notes;
+      q.client = {company:d.c_company, contact:d.c_contact, phone:d.c_phone, email:d.c_email, city:d.c_city};
+      q.discount = +d.discount || 0; q.gst = $('f-gst').checked;
+      q.lines = q.lines.filter(function(l){ return (l.name || '').trim() || +l.price; });
+    }
+    drawLines();
+    $('f-discount').addEventListener('input', drawTotals); $('f-gst').addEventListener('change', drawTotals);
+    $('f-leadId').addEventListener('change', function(){
+      var l = state.leads.find(function(x){ return x.id === this.value; }, this); if(!l) return;
+      [['c_company','company'],['c_contact','contact'],['c_phone','phone'],['c_email','email'],['c_city','city']].forEach(function(p){ $('f-' + p[0]).value = l[p[1]] || ''; });
+    });
+    $('q-pick').addEventListener('change', function(){
+      var p = state.products.find(function(x){ return x.id === this.value; }, this); if(!p) return;
+      if(q.lines.length === 1 && !q.lines[0].name && !+q.lines[0].price) q.lines = [];
+      q.lines.push({productId:p.id, name:p.name + (p.description ? ' - ' + p.description : ''), qty:1, price:+p.price || 0}); this.value = ''; drawLines();
+    });
+    $('q-custom').onclick = function(){ q.lines.push({name:'', qty:1, price:0}); drawLines(); $('q-lines').querySelector('.line:last-child input').focus(); };
+    $('q-preview').onclick = function(){ collect(); openDoc('Quote ' + q.number, quoteDoc(q), q.number + '.html'); };
+    $('dr-body').onsubmit = async function(e){
+      e.preventDefault(); collect();
+      if(!q.client.company.trim()){ $('f-err').textContent = 'Add the client company.'; $('f-c_company').focus(); return; }
+      if(!q.lines.length){ $('f-err').textContent = 'Add at least one item.'; return; }
+      var body = Object.assign({}, q, {total:quoteTotals(q).total, updatedAt:new Date().toISOString()}); delete body.id;
+      try{
+        if(quote) await db.doc('quotes/' + quote.id).set(Object.assign({createdAt:quote.createdAt || body.updatedAt}, body));
+        else { body.createdAt = body.updatedAt; body.createdBy = meId; await db.collection('quotes').add(body); }
+        /* A quote marked sent moves its lead to "Quote sent"; an accepted one to "Won" */
+        var lead = state.leads.find(function(l){ return l.id === q.leadId; });
+        var stage = q.status === 'sent' ? 'quoted' : q.status === 'accepted' ? 'won' : null;
+        if(lead && stage && lead.stage !== stage) await db.doc('leads/' + lead.id).update({stage:stage, value:quoteTotals(q).total, updatedAt:body.updatedAt});
+        closeDrawer(); toast('Quote ' + q.number + ' saved');
+      } catch(err){ failWrite(err); }
+    };
+    if(quote) confirmBtn($('del'), 'Delete quote', async function(){ await db.doc('quotes/' + quote.id).delete(); closeDrawer(); toast('Quote deleted'); });
+  }
+
+  /* ---------- printable documents in the Lynchpin template ---------- */
+  var DOC_CSS = '*{box-sizing:border-box}body{margin:0;background:#fff;color:#16181B;font:400 14px/1.5 "Hanken Grotesk",Arial,sans-serif}.pg{background:#fff;padding:48px 52px;position:relative;overflow:hidden}.pg+.pg{border-top:12px solid #5B5F66}h1,h2,h3{font-family:Archivo,"Arial Narrow",Arial,sans-serif;margin:0}.red{color:#E3181F}.logo{font:800 22px Archivo,Arial,sans-serif;color:#E3181F}.logo img{height:34px}.muted{color:#5D6168}.mono{font-family:"IBM Plex Mono",Menlo,monospace}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #E1DAD8;vertical-align:top}th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#5D6168}.r{text-align:right}.tot{margin-left:auto;width:300px;margin-top:14px}.tot div{display:flex;justify-content:space-between;padding:4px 0}.tot .g{font:800 20px Archivo,Arial,sans-serif;border-top:2px solid #16181B;margin-top:6px;padding-top:8px}.cover{min-height:900px;background:linear-gradient(118deg,#fff 0 52%,#E3181F 52.2%);display:flex;flex-direction:column;justify-content:space-between}.cover h1{font-size:64px;line-height:.95;font-weight:800;text-transform:uppercase}.cover h1 span{color:#E3181F;display:block;border-bottom:6px solid #16181B;width:max-content}.prods{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:22px}.pc{border:1px solid #E1DAD8;border-radius:12px;overflow:hidden}.pc .im{aspect-ratio:4/3;background:#F3EFEE center/contain no-repeat}.pc .b{padding:12px 14px}.pc .c{font-size:11px;font-weight:800;color:#A9121A;text-transform:uppercase;letter-spacing:.08em}.pc h3{font-size:17px;margin:2px 0 4px}.pc .p{font:800 16px Archivo,Arial,sans-serif}.sec{font-size:30px;font-weight:800;text-transform:uppercase;border-bottom:4px solid #E3181F;display:inline-block;padding-bottom:4px}.foot{margin-top:28px;padding-top:14px;border-top:2px solid #16181B;display:flex;justify-content:space-between;gap:20px;font-size:12px;color:#5D6168}@media print{.pg+.pg{border-top:0;page-break-before:always}}';
+  function logoTag(base){ return '<img src="' + base + 'assets/logo.png" alt="Lynchpin">'; }
+  function quoteDoc(q, base){
+    base = base || '';
+    var t = quoteTotals(q), c = q.client || {};
+    return '<div class="pg"><div style="display:flex;justify-content:space-between;gap:24px;align-items:flex-start"><div class="logo">' + logoTag(base) + '<div class="muted" style="font:500 13px Hanken Grotesk,Arial">' + esc(COMPANY.line) + '</div></div><div style="text-align:right"><h1 style="font-size:34px;text-transform:uppercase;color:#E3181F">Quotation</h1><div class="mono">' + esc(q.number) + '</div><div class="muted">' + fmtDate(q.date) + (q.validUntil ? ' · valid until ' + fmtDate(q.validUntil) : '') + '</div></div></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:30px"><div><div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.06em">Prepared for</div><h3 style="font-size:19px">' + esc(c.company) + '</h3><div>' + esc([c.contact, c.city].filter(Boolean).join(', ')) + '</div><div class="muted">' + esc([c.phone, c.email].filter(Boolean).join(' · ')) + '</div></div><div><div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.06em">From</div><h3 style="font-size:19px">' + esc(COMPANY.name) + '</h3><div class="muted">' + esc(COMPANY.addr) + '</div><div class="muted">' + esc(COMPANY.phone + ' · ' + COMPANY.email) + '</div></div></div>' +
+      '<table><thead><tr><th style="width:44px">#</th><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>' +
+      (q.lines || []).map(function(l,i){ return '<tr><td class="muted">' + (i + 1) + '</td><td>' + esc(l.name) + '</td><td class="r">' + esc(l.qty) + '</td><td class="r">' + money(l.price) + '</td><td class="r"><b>' + money((+l.qty || 0) * (+l.price || 0)) + '</b></td></tr>'; }).join('') +
+      '</tbody></table><div class="tot"><div><span>Subtotal</span><span>' + money(t.sub) + '</span></div>' + (t.disc ? '<div><span>Discount ' + esc(q.discount) + '%</span><span>−' + money(t.disc) + '</span></div>' : '') + (q.gst ? '<div><span>GST 18%</span><span>' + money(t.gst) + '</span></div>' : '') + '<div class="g"><span>Total</span><span>' + money(t.total) + '</span></div></div>' +
+      (q.notes ? '<div style="margin-top:26px"><div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.06em">Terms</div><p style="white-space:pre-wrap">' + esc(q.notes) + '</p></div>' : '') +
+      '<div class="foot"><span>' + esc(COMPANY.name) + ' · ' + esc(COMPANY.line) + '</span><span>Repair. Restore. Reimagine.</span></div></div>';
+  }
+  function catalogueDoc(base){
+    base = base || '';
+    var by = {}; state.products.forEach(function(p){ (by[p.category] = by[p.category] || []).push(p); });
+    var pages = '<div class="pg cover"><div class="logo">' + logoTag(base) + '</div><div><h1>Repair<br>Restore<span>Reimagine</span></h1><p style="margin-top:22px;font-size:18px;max-width:30ch">Office furniture catalogue ' + new Date().getFullYear() + '-' + String(new Date().getFullYear() + 1).slice(2) + '</p></div><div class="muted" style="color:#fff;text-align:right;font-weight:600">' + esc(COMPANY.name) + '<br>' + esc(COMPANY.phone) + '</div></div>';
+    CATS.forEach(function(cat){
+      if(!by[cat]) return;
+      pages += '<div class="pg"><div class="sec">' + esc(cat) + '</div><div class="prods">' + by[cat].map(function(p){
+        return '<div class="pc"><div class="im"' + (p.image ? ' style="background-image:url(' + esc(imgSrc(p.image)) + ')"' : '') + '></div><div class="b"><div class="c">' + esc(p.category) + (p.sku ? ' · ' + esc(p.sku) : '') + '</div><h3>' + esc(p.name) + '</h3><div class="muted">' + esc(p.description || '') + '</div><div class="p" style="margin-top:8px">' + (p.price != null && p.price !== '' ? money(p.price) + ' <span class="muted" style="font:500 12px Hanken Grotesk,Arial">per ' + esc(p.unit || 'piece') + ', before GST</span>' : 'Price on request') + '</div></div></div>';
+      }).join('') + '</div></div>';
+    });
+    pages += '<div class="pg"><div class="sec">Reach out to us</div><p style="font-size:18px;margin-top:18px">' + esc(COMPANY.addr) + '<br>' + esc(COMPANY.phone) + '<br>' + esc(COMPANY.email) + '</p><p class="muted" style="margin-top:18px">“If our service is no value to you, then your money is of no value to us.”</p></div>';
+    return pages;
+  }
+
+  /* The preview renders in a shadow root so the document's own styles never touch the admin.
+     Asset links are made absolute so the downloaded file still shows the logo and photos */
+  var doc = {body:'', file:''};
+  function absolute(body){
+    return body.split('url(/_blob/').join('url(' + new URL('/_blob/', location.href).href)
+      .split('url(assets/').join('url(' + new URL('assets/', location.href).href)
+      .split('src="assets/').join('src="' + new URL('assets/', location.href).href);
+  }
+  function openDoc(title, body, file){
+    body = absolute(body);
+    var host = $('doc-frame');
+    var root = host.shadowRoot || host.attachShadow({mode:'open'});
+    root.innerHTML = '<style>' + DOC_CSS.replace('body{', ':host{display:block;') + '</style>' + body;
+    doc.body = body;
+    doc.file = file.replace(/\.html$/, '.pdf');
+    $('doc-title').textContent = title;
+    $('doc-save').hidden = !downloads;
+    $('doc-view').classList.add('open');
+  }
+  $('doc-close').onclick = function(){ $('doc-view').classList.remove('open'); };
+
+  /* PDF: the same template is laid out off screen at A4 width, each page is captured as an image
+     and placed on A4 pages, so the PDF looks exactly like the preview. Libraries load on first use */
+  var pdfLibs = null;
+  function loadScript(src){
+    return new Promise(function(ok,no){ var el = document.createElement('script'); el.src = src; el.onload = ok; el.onerror = no; document.head.appendChild(el); });
+  }
+  function loadPdfLibs(){
+    return pdfLibs = pdfLibs || Promise.all([
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+    ]);
+  }
+  async function makePdf(body){
+    await loadPdfLibs();
+    var host = document.createElement('div');
+    host.className = 'pdfdoc';
+    host.setAttribute('aria-hidden', 'true');
+    host.style.cssText = 'position:fixed;left:-12000px;top:0;width:794px;background:#fff';
+    host.innerHTML = '<style>.pdfdoc{' + DOC_CSS.replace('body{', '&{') + '} .pdfdoc table{min-width:0} .pdfdoc th,.pdfdoc td{white-space:normal;padding:10px 8px} .pdfdoc tbody tr{cursor:auto} .pdfdoc tbody tr:hover{background:none} .pdfdoc .pg{width:794px;min-height:1123px} .pdfdoc .pg+.pg{border-top:0} .pdfdoc .cover{min-height:1123px}</style>' + body;
+    document.body.appendChild(host);
+    try {
+      await document.fonts.ready;
+      /* Wait for each image to load (decode() can stall on off-screen images), never longer than 4 s */
+      await Promise.race([
+        Promise.all([].map.call(host.querySelectorAll('img'), function(i){
+          return i.complete ? null : new Promise(function(ok){ i.onload = i.onerror = ok; });
+        })),
+        new Promise(function(ok){ setTimeout(ok, 4000); })
+      ]);
+      var pdf = new window.jspdf.jsPDF({unit:'pt', format:'a4', compress:true});
+      var W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight(), first = true;
+      var pages = host.querySelectorAll('.pg');
+      for(var p = 0; p < pages.length; p++){
+        var shot = await html2canvas(pages[p], {scale:2, backgroundColor:'#ffffff', useCORS:true, logging:false});
+        var slice = Math.floor(shot.width * H / W);
+        /* A page taller than A4 (a long quote) continues on the next sheet */
+        for(var y = 0; y < shot.height - 4; y += slice){
+          var part = document.createElement('canvas'); part.width = shot.width; part.height = Math.min(slice, shot.height - y);
+          part.getContext('2d').drawImage(shot, 0, y, shot.width, part.height, 0, 0, shot.width, part.height);
+          if(!first) pdf.addPage();
+          first = false;
+          pdf.addImage(part.toDataURL('image/jpeg', .92), 'JPEG', 0, 0, W, part.height * W / shot.width);
+        }
+      }
+      return pdf.output('blob');
+    } finally { host.remove(); }
+  }
+  $('doc-save').onclick = async function(){
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Making PDF…';
+    try {
+      var blob = await makePdf(doc.body);
+      await downloads.save({filename:doc.file, data:blob});
+      toast('PDF saved');
+    } catch(e){
+      if(e && e.code === 'declined'){} else if(e && e.code) toast('The PDF could not be saved here.');
+      else toast('The PDF could not be made. Check your connection and try again.');
+    } finally { btn.disabled = false; btn.textContent = 'Download PDF'; }
+  };
+  $('preview-cat').addEventListener('click', function(){
+    if(!state.products.length){ toast('Add a product first. The catalogue is built from them.'); return; }
+    openDoc('Lynchpin catalogue', catalogueDoc(), 'lynchpin-catalogue.html');
+  });
+
+  /* ---------- drawer and form helpers ---------- */
+  var lastFocus = null;
+  function openDrawer(title, wide, body, foot){
+    lastFocus = document.activeElement;
+    $('dr-title').textContent = title; $('dr-body').innerHTML = body; $('dr-foot').innerHTML = foot;
+    $('drawer').classList.toggle('wide', wide);
+    $('drawer').classList.add('open'); $('scrim').classList.add('open');
+    setTimeout(function(){ var f = $('dr-body').querySelector('input,select,textarea'); if(f) f.focus(); }, 60);
+  }
+  function closeDrawer(){
+    $('drawer').classList.remove('open'); $('scrim').classList.remove('open');
+    if(lastFocus) lastFocus.focus();
+  }
+  $('dr-close').onclick = closeDrawer; $('scrim').onclick = closeDrawer;
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    if($('doc-view').classList.contains('open')) $('doc-view').classList.remove('open'); else if($('drawer').classList.contains('open')) closeDrawer();
+  });
+  /* Destructive buttons ask twice in place; the viewer has no confirm() dialog */
+  function confirmBtn(btn, label, action){
+    btn.onclick = async function(){
+      if(btn.dataset.armed){
+        btn.disabled = true;
+        try { await action(); } catch(err){ failWrite(err); btn.disabled = false; }
+        return;
+      }
+      btn.dataset.armed = 1; btn.textContent = 'Click again to ' + label.toLowerCase();
+      setTimeout(function(){ delete btn.dataset.armed; btn.textContent = label; }, 3000);
+    };
+  }
+  function fld(k, label, v, type, req){
+    return '<div class="field"><label for="f-' + k + '">' + label + (req ? ' <span class="red">*</span>' : '') + '</label><input id="f-' + k + '" name="' + k + '" type="' + (type || 'text') + '" value="' + esc(v == null ? '' : v) + '"' + (type === 'number' ? ' min="0" step="any"' : '') + '></div>';
+  }
+  function sel(k, label, opts, v){
+    return '<div class="field"><label for="f-' + k + '">' + label + '</label><select id="f-' + k + '" name="' + k + '">' + opts.map(function(o){ return '<option value="' + esc(o[0]) + '"' + (o[0] === (v || '') ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></div>';
+  }
+  function area(k, label, v){ return '<div class="field"><label for="f-' + k + '">' + label + '</label><textarea id="f-' + k + '" name="' + k + '">' + esc(v || '') + '</textarea></div>'; }
+  function formData(){
+    var d = {};
+    $('dr-body').querySelectorAll('[name]').forEach(function(el){ if(el.type !== 'file') d[el.name] = el.value; });
+    return d;
+  }
+
+  start();
+})();
+</script>
