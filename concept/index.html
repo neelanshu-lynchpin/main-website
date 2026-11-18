@@ -1092,7 +1092,7 @@ section[id]{scroll-margin-top:96px}
     <div><img loading="lazy" decoding="async" src="assets/logo-white.png" alt="Lynchpin" width="480" height="128"><p>Lynchpin Associates. Ergonomic Solutions. Repairing, servicing and maintaining office furniture across India.</p></div>
     <nav aria-label="Footer"><b>Explore</b><a href="#savings">Savings</a><a href="#fix">What we fix</a><a href="#how">How it works</a><a href="#where">Where we work</a></nav>
     <div><b>Talk to us</b><span>+91 90366 15441</span><br><span>marketing@lynchpin.co.in</span><address>22, 3rd floor, 6th cross, Sampige Road, Malleshwaram, Bengaluru 560003</address></div>
-    <div><b>Team</b><a class="team" href="https://claude.ai/artifact/46qj9f1SBEws5rgTSvRFJv" target="_blank" rel="noopener">Team login</a><p>Carbon figures are guide values.</p></div>
+    <div><b>Team</b><a class="team" href="/admin">Team login</a><p>Carbon figures are guide values.</p></div>
   </div>
 </footer>
 
@@ -1330,8 +1330,6 @@ section[id]{scroll-margin-top:96px}
     sheet.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ setMenu(false); }); });
   }
 
-  /* On a local preview the footer's Team login opens the local admin */
-  if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) document.querySelectorAll('.team').forEach(function(a){ a.href = '/admin'; a.removeAttribute('target'); });
 
   /* A sent request gets a capybara parade across the bottom of the screen */
   function parade(){

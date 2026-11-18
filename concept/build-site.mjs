@@ -1,5 +1,5 @@
 // Builds the public site into dist/ for Vercel: wraps index.html in a full document and copies
-// the images it uses. Only the site goes out: no admin, no demo data, no other folders.
+// the images it uses, plus the team admin at /admin. No other folders go out.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const OUT = 'dist';
@@ -33,6 +33,19 @@ const head = [
 ].join('');
 writeFileSync(`${OUT}/index.html`, head + page + '</body></html>');
 
-cpSync('assets', `${OUT}/assets`, { recursive: true, filter: (src) => !/[\\/](demo|\.DS_Store)$/.test(src) });
+// The team admin at /admin: the same page as the claude.ai admin, signed in with the team
+// password and reading MongoDB through api/admin.js (admin-live.js stands in for claude.ai)
+const admin = readFileSync('admin.html', 'utf8').replace('<script>\n(function(){', '<script src="/admin-live.js"></script>\n<script>\n(function(){');
+if (!admin.includes('admin-live.js')) throw new Error('admin.html: could not find where to load admin-live.js');
+writeFileSync(`${OUT}/admin.html`, [
+  '<!doctype html><html lang="en"><head><meta charset="utf-8">',
+  '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
+  '<meta name="robots" content="noindex,nofollow"><link rel="icon" href="/favicon.ico" sizes="any">',
+  '<style>:root{color-scheme:light}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style>',
+  '</head><body>',
+].join('') + admin + '</body></html>');
+cpSync('admin-live.js', `${OUT}/admin-live.js`);
+
+cpSync('assets', `${OUT}/assets`, { recursive: true, filter: (src) => !/[\\/]\.DS_Store$/.test(src) });
 cpSync('assets/favicon.ico', `${OUT}/favicon.ico`); // browsers also ask for /favicon.ico directly
 console.log('Built', OUT);
