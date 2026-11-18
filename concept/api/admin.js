@@ -6,7 +6,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 
 let client; // reused across requests while the function stays warm
 
-const COLLECTIONS = ['leads', 'prospects', 'products', 'quotes', 'contracts'];
+const COLLECTIONS = ['leads', 'prospects', 'products', 'quotes', 'contracts', 'certificates', 'cases', 'casePhotos', 'reviews', 'settings'];
 const TEAM = ['Neelanshu', 'Prashant', 'Khushi'];
 const COOKIE = 'lp_admin';
 const DAYS = 30;

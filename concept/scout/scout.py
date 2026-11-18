@@ -4,6 +4,9 @@ It reads Google News RSS for recent office leases, new GCCs and coworking openin
 keeps headlines that name a company and show real scale (1 lakh sq ft or more, 1,000+ seats,
 or a new GCC), and saves each new company as a target account.
 
+It also reads news of furniture repair and maintenance tenders. Tender portals (CPPP, GeM) sit
+behind captchas or sign-ins, so the scout does not read them; the admin links to them for a weekly look.
+
 Where it saves:
   - By default: scout/out/prospects.json (next to this file).
   - If MONGODB_URI is set: the "prospects" collection in MongoDB (database MONGODB_DB,
@@ -49,7 +52,29 @@ QUERIES = [
     "Gurugram lakh sq ft office lease",
     "flex workspace operator adds seats India",
     "global capability centre India new campus",
+    # New centres: a centre opening now needs furniture kept running for years
+    "Bengaluru new coworking centre opens",
+    "Awfis new centre Bengaluru",
+    "Smartworks new centre",
+    "Indiqube new centre",
+    "WeWork India new building",
+    "Table Space new centre",
+    "BHIVE new centre Bengaluru",
+    "Bengaluru tech park inaugurated",
 ]
+
+# Tenders for furniture repair and maintenance. Any headline that names a tender (or bid, RFP,
+# e-tender) and furniture work becomes an account to look at.
+TENDER_QUERIES = [
+    "tender office furniture repair",
+    "tender furniture maintenance AMC",
+    "e-tender furniture repair Karnataka",
+    "tender repair of chairs",
+    "RFP furniture maintenance services India",
+    "GeM bid furniture repair",
+]
+TENDER_WORDS = re.compile(r"\b(tenders?|e-tender|bids?|rfp|eoi|expression of interest|quotation)\b", re.I)
+FURNITURE_WORDS = re.compile(r"\b(furniture|chairs?|sofas?|upholster\w*|workstations?|modular)\b", re.I)
 
 # Headline pattern: "<Company> <verb> ...". The company is whatever comes before the verb.
 VERBS = (r"leases|sub-leases|subleases|pre-leases|takes up|takes|rents|signs|adds|opens|unveils|launches|"
@@ -178,6 +203,34 @@ def slug(name):
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:40]
 
 
+def tender_candidate(item):
+    """A tender headline about furniture work, or None. The buyer is unknown from a headline,
+    so the account is named after the headline and marked for a look."""
+    t = item["title"]
+    if not (TENDER_WORDS.search(t) and FURNITURE_WORDS.search(t)):
+        return None
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    name = re.sub(r"\s+", " ", t)[:80]
+    return {
+        "id": "t-" + item["date"].strftime("%Y%m%d") + "-" + slug(name)[:40],
+        "company": name,
+        "segment": "Government and PSU tenders",
+        "city": city_of(t),
+        "why": "A published tender for furniture repair or maintenance: a buyer who has already decided to spend.",
+        "signal": "%s (%s, %s)" % (t, item["source"] or "news", item["date"].strftime("%d %b %Y")),
+        "sourceUrl": item["link"],
+        "targetRole": "Tender or purchase officer",
+        "priority": "A",
+        "status": "research",
+        "scale": "",
+        "contactName": "", "contactRole": "", "contactPhone": "", "contactEmail": "",
+        "source": "Auto scout", "foundBy": "Daily scout",
+        "nextStep": "Open the news link, find the tender number and closing date, then check it on the portal",
+        "nextDate": "", "owner": "", "notes": "",
+        "createdAt": now, "updatedAt": now,
+    }
+
+
 def candidate(item):
     """Turns one news item into a target account, or None when it doesn't fit."""
     m = HEADLINE.match(item["title"])
@@ -274,7 +327,7 @@ def main():
     cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=MAX_AGE_DAYS)
 
     found, skipped = [], 0
-    for q in QUERIES:
+    for q in QUERIES + TENDER_QUERIES:
         items = None
         for attempt in range(3):  # Google News answers 429 when asked too fast
             try:
@@ -290,7 +343,7 @@ def main():
         for item in items:
             if item["date"] < cutoff:
                 continue
-            row = candidate(item)
+            row = tender_candidate(item) if q in TENDER_QUERIES else candidate(item)
             if not row:
                 continue
             k = key_of(row["company"])
@@ -300,8 +353,8 @@ def main():
             seen.append(k)
             found.append(row)
 
-    # Biggest signals first
-    found.sort(key=lambda r: (r["priority"], r["createdAt"]))
+    # Biggest signals first; tenders always make the cut
+    found.sort(key=lambda r: (r["segment"] != "Government and PSU tenders", r["priority"], r["createdAt"]))
     found = found[:MAX_PER_RUN]
     for r in found:
         print("%s  %-32s %-28s %s" % (r["priority"], r["company"][:32], r["segment"][:28], r["scale"]))

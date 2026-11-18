@@ -239,6 +239,13 @@ input[type=range]{width:100%;accent-color:var(--red);height:28px}
 .book{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px, 5vw, 64px);align-items:start}
 .book address{font-style:normal;display:grid;gap:10px;margin-top:22px;color:var(--ink)}
 .book address > span{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.audit-link{margin-top:10px}
+.audit-link a{color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:22px}
+.rv{background:#fff;border:1.5px solid var(--line);padding:20px;display:grid;gap:10px;align-content:start;margin:0}
+.rv b{color:#F2A900;letter-spacing:2px;font-size:1.05rem}
+.rv p{margin:0;font-size:1.02rem}
+.rv cite{font-style:normal;color:var(--mute);font-size:.9rem}
 .faq-wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,5vw,64px);align-items:start}
 .qas{display:grid;gap:8px}
 .qa{background:#fff;border:1.5px solid var(--line)}
@@ -943,6 +950,7 @@ section[id]{scroll-margin-top:96px}
         <div class="bar rep"><span>Repair</span><i id="b-fix" style="width:6%"></i></div>
       </div>
       <p class="fine">Estimates. A new ergonomic chair at ₹14,000; a typical repair (new fabric or gas lift) at ₹850. 87 kg CO₂e per new chair is the lowest of three published chair declarations (<a href="https://materials.oneclicklca.com/en/material/office-chair/69ebb9567834952303679780" target="_blank" rel="noopener">Aeron ESD</a>, <a href="https://info.nsf.org/Certified/Sustain/ProdCert/EPD10934.pdf" target="_blank" rel="noopener">Series 2</a>, <a href="https://materials.oneclicklca.com/en/material/office-chair/65bffbac86a96468ff207796" target="_blank" rel="noopener">Series 1</a>). Carbon from repair parts is not counted.</p>
+      <p class="audit-link"><a href="/audit">Count your office in the free audit and get a printable report →</a></p>
     </div>
   </div>
 </section>
@@ -1063,6 +1071,14 @@ section[id]{scroll-margin-top:96px}
   </div>
 </section>
 
+<section class="band" id="reviews" style="padding-top:0" hidden>
+  <div class="wrap">
+    <span class="kicker">Clients on Lynchpin</span>
+    <h2 class="t" id="rv-head">What our clients <em>say.</em></h2>
+    <div class="rv-grid" id="rv-grid"></div>
+  </div>
+</section>
+
 <section class="band" id="faq" style="padding-top:0">
   <div class="wrap faq-wrap">
     <div><span class="kicker">Questions</span><h2 class="t">What offices ask <em>before we visit.</em></h2></div>
@@ -1119,7 +1135,7 @@ section[id]{scroll-margin-top:96px}
     <div><img loading="lazy" decoding="async" src="assets/logo-white.png" alt="Lynchpin" width="480" height="128"><p>Lynchpin Associates. Ergonomic Solutions. Repairing, servicing and maintaining office furniture across India.</p></div>
     <nav aria-label="Footer"><b>Services</b><a href="/services/office-chair-repair-bengaluru">Office chair repair</a><a href="/services/sofa-repair-reupholstery-bengaluru">Sofa repair and reupholstery</a><a href="/services/leather-furniture-repair-bengaluru">Leather furniture repair</a><a href="/services/workstation-pedestal-repair-bengaluru">Workstation and pedestal repair</a><a href="/services/office-furniture-maintenance-contract">Maintenance contracts</a><a href="/blog">Blog</a></nav>
     <div><b>Talk to us</b><span>+91 90366 15441</span><br><span>marketing@lynchpin.co.in</span><address>22, 3rd floor, 6th cross, Sampige Road, Malleshwaram, Bengaluru 560003</address><a href="https://www.linkedin.com/company/lynchpinassociates-bangalore/" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>LinkedIn</a></div>
-    <div><b>Team</b><a class="team" href="/admin">Team login</a><p>Carbon figures are guide values.</p></div>
+    <div><b>For clients</b><a href="/book">Book a repair</a><a href="/audit">Free office furniture audit</a><a href="/work">Our work</a><a href="/review">Leave a review</a><a class="team" href="/admin">Team login</a><p>Carbon figures are guide values.</p></div>
   </div>
 </footer>
 
@@ -1502,4 +1518,19 @@ section[id]{scroll-margin-top:96px}
   ScrollTrigger.sort(); ScrollTrigger.refresh();
 })();
 </script>
-
+<script>
+/* Published client reviews (live site only). The section stays hidden until there is at least one */
+(function(){
+  if(!window.LYNCHPIN_LIVE) return;
+  var esc = function(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  fetch('/api/public?type=reviews').then(function(r){ return r.json(); }).then(function(j){
+    var all = j.reviews || [], list = all.slice(0, 6); if(!list.length) return;
+    var avg = all.reduce(function(s, r){ return s + (+r.rating || 0); }, 0) / all.length;
+    if(all.length >= 3) document.getElementById('rv-head').innerHTML = esc(avg.toFixed(1)) + ' out of 5 from <em>' + all.length + ' clients.</em>';
+    document.getElementById('rv-grid').innerHTML = list.map(function(r){
+      return '<figure class="rv"><b aria-label="' + r.rating + ' out of 5">' + '★'.repeat(r.rating) + '</b><p>' + esc(r.quote) + '</p><cite>' + esc(r.name) + (r.role ? ', ' + esc(r.role) : '') + (r.company ? ' · ' + esc(r.company) : '') + '</cite></figure>';
+    }).join('');
+    document.getElementById('reviews').hidden = false;
+  }).catch(function(){});
+})();
+</script>

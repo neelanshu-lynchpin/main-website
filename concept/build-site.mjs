@@ -2,6 +2,7 @@
 // the images it uses, the service pages and blog, the crawler files, and the team admin at /admin.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { SITE, SERVICES, POSTS, businessSchema, servicePage, servicesIndex, postPage, blogIndex, sitemap, robots, llms } from './seo-pages.mjs';
+import { bookPage, auditPage, certificatePage, reviewPage } from './client-pages.mjs';
 
 const OUT = 'dist';
 // Search results show these two lines: lead with what people type ("office chair repair Bengaluru")
@@ -65,6 +66,11 @@ writeFileSync(`${OUT}/services.html`, servicesIndex());
 SERVICES.forEach((s) => writeFileSync(`${OUT}/services/${s.slug}.html`, servicePage(s)));
 writeFileSync(`${OUT}/blog.html`, blogIndex());
 POSTS.forEach((p) => writeFileSync(`${OUT}/blog/${p.slug}.html`, postPage(p)));
+// Pages for clients: the QR sticker opens /book
+writeFileSync(`${OUT}/book.html`, bookPage());
+writeFileSync(`${OUT}/audit.html`, auditPage());
+writeFileSync(`${OUT}/certificate.html`, certificatePage());
+writeFileSync(`${OUT}/review.html`, reviewPage());
 // What search engines and AI assistants read first
 writeFileSync(`${OUT}/sitemap.xml`, sitemap());
 writeFileSync(`${OUT}/robots.txt`, robots());

@@ -217,6 +217,22 @@ textarea{min-height:84px;resize:vertical}
 .fine{color:var(--good);font-weight:700}
 .panel .none{padding:16px;color:var(--mute);font-size:.88rem}
 .who-pick{display:flex;gap:6px;flex-wrap:wrap}
+/* Marketing */
+.subtabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.subtabs button{all:unset;cursor:pointer;padding:8px 14px;border-radius:999px;border:1px solid var(--line-2);background:var(--card);font-weight:700;font-size:.88rem}
+.subtabs button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.mk-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:22px;align-items:start}
+.sticker-box{background:#E9E3E1;border-radius:10px;padding:22px;display:grid;place-items:center}
+.sticker-box svg{width:100%;max-width:300px;height:auto;filter:drop-shadow(0 10px 18px rgb(0 0 0 / .18))}
+.photo-row{display:flex;flex-wrap:wrap;gap:8px}
+.photo-row figure{margin:0;width:110px;position:relative}
+.photo-row img{width:110px;height:82px;object-fit:cover;border-radius:6px;display:block;background:#EFE8E6}
+.photo-row figcaption{font-size:.74rem;color:var(--mute);display:flex;justify-content:space-between;gap:4px}
+.photo-row button{all:unset;cursor:pointer;color:var(--red-deep);font-weight:700}
+.stars-s{color:#F2A900;letter-spacing:1px;white-space:nowrap}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.76rem;font-weight:700;background:#EEE;color:#555}
+.pill.on{background:#DDF2E6;color:var(--good)}
+@media (max-width:860px){.mk-grid{grid-template-columns:minmax(0,1fr)}}
 /* Reports */
 .rep-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
 .panel .pad{padding:16px}
@@ -255,6 +271,7 @@ textarea{min-height:84px;resize:vertical}
       <button class="tab" role="tab" data-view="quotes" aria-selected="false">Quotes</button>
       <button class="tab" role="tab" data-view="contracts" aria-selected="false">Contracts</button>
       <button class="tab" role="tab" data-view="reports" aria-selected="false">Reports</button>
+      <button class="tab" role="tab" data-view="marketing" aria-selected="false">Marketing</button>
     </nav>
     <div class="me" id="me"></div>
   </div>
@@ -307,6 +324,7 @@ textarea{min-height:84px;resize:vertical}
           <li><b>Coworking operators</b>: thousands of shared chairs, heavy wear</li>
           <li><b>Office parks and landlords</b>: tenant services across campuses</li>
           <li><b>Large IT campuses, hospitals and universities</b></li>
+          <li><b>Tenders</b>, every Monday: <a class="link" href="https://bidplus.gem.gov.in/all-bids" target="_blank" rel="noopener">GeM</a>, <a class="link" href="https://eprocure.gov.in/eprocure/app" target="_blank" rel="noopener">CPPP</a>, <a class="link" href="https://kppp.karnataka.gov.in/" target="_blank" rel="noopener">Karnataka</a>. Search "furniture repair". The scout adds tenders it sees in the news.</li>
         </ul></div>
         <div><h3>Weekly routine</h3><ol>
           <li><b>Monday</b>: research 10 accounts. Find the facilities or admin head through LinkedIn, the company site, or a referral from a current customer.</li>
@@ -352,6 +370,14 @@ textarea{min-height:84px;resize:vertical}
     <div id="contracts"></div>
   </section>
 
+  <section id="v-marketing" hidden>
+    <div class="head">
+      <div><h1>Marketing</h1><p>The QR sticker for repaired furniture, carbon certificates for clients, case studies for the website, and client reviews.</p></div>
+    </div>
+    <div class="subtabs" id="mk-tabs"><button type="button" data-mk="sticker" aria-pressed="true">QR sticker</button><button type="button" data-mk="certs" aria-pressed="false">Carbon certificates</button><button type="button" data-mk="cases" aria-pressed="false">Case studies</button><button type="button" data-mk="reviews" aria-pressed="false">Reviews</button></div>
+    <div id="mk-body"></div>
+  </section>
+
   <section id="v-reports" hidden>
     <div class="head">
       <div><h1>Reports</h1><p>How the business is doing: money won, where good leads come from and how fast the team replies.</p></div>
@@ -387,14 +413,14 @@ textarea{min-height:84px;resize:vertical}
     {k:'lost', t:'Lost', c:'#A9121A'}
   ];
   var TEAM = ['Neelanshu', 'Prashant', 'Khushi'];
-  var VIEWS = ['today','pipeline','prospects','catalogue','quotes','contracts','reports'];
+  var VIEWS = ['today','pipeline','prospects','catalogue','quotes','contracts','reports','marketing'];
   var TEAM_C = {Neelanshu:'#E3181F', Prashant:'#2F6FB5', Khushi:'#1F7A4D'};
   var CATS = ['Chairs', 'Sofas', 'Workstations', 'Pedestals', 'Spares', 'Services'];
   var UNITS = ['piece', 'set', 'job', 'visit', 'hour', 'metre'];
   var COMPANY = {name:'Lynchpin Associates', line:'Ergonomic Solutions', addr:'22, 3rd floor, 6th cross, Sampige Road, Malleshwaram, Bengaluru 560003', phone:'+91 90366 15441', email:'marketing@lynchpin.co.in'};
 
   var db = null, user = null, assets = null, downloads = null, meId = null;
-  var state = {leads:[], products:[], quotes:[], prospects:[], contracts:[]}, loaded = {leads:false, products:false, quotes:false, prospects:false, contracts:false};
+  var state = {leads:[], products:[], quotes:[], prospects:[], contracts:[], certificates:[], cases:[], reviews:[], settings:[]}, loaded = {leads:false, products:false, quotes:false, prospects:false, contracts:false, certificates:false, cases:false, reviews:false, settings:false};
   var view = 'today', meName = '';
   var $ = function(id){ return document.getElementById(id); };
   var inr = new Intl.NumberFormat('en-IN', {style:'currency', currency:'INR', maximumFractionDigits:0});
@@ -441,6 +467,7 @@ textarea{min-height:84px;resize:vertical}
     downloads = await claude.use('downloads');
     $('gate').hidden = true; $('tabs').hidden = false;
     subscribe('leads', 'leads'); subscribe('products', 'products'); subscribe('quotes', 'quotes'); subscribe('prospects', 'prospects'); subscribe('contracts', 'contracts');
+    ['certificates','cases','reviews','settings'].forEach(function(k){ subscribe(k, k); });
     var h = location.hash.slice(1);
     show(VIEWS.indexOf(h) > -1 ? h : 'today');
   }
@@ -486,6 +513,7 @@ textarea{min-height:84px;resize:vertical}
     if(view === 'today') renderToday();
     if(view === 'contracts') renderContracts();
     if(view === 'reports') renderReports();
+    if(view === 'marketing') renderMarketing();
   }
   function loadingBlock(){ return '<div class="grid">' + '<div class="skel" style="height:220px"></div>'.repeat(4) + '</div>'; }
 
@@ -557,11 +585,15 @@ textarea{min-height:84px;resize:vertical}
       fld('item','What needs attention',l.item) +
       '<div class="row">' + sel('stage','Stage',STAGES.map(function(s){ return [s.k,s.t]; }),l.stage) + sel('owner','Owner',[['','Unassigned']].concat(TEAM.map(function(t){ return [t,t]; })),l.owner) + '</div>' +
       '<div class="row">' + fld('nextFollowUp','Next follow-up',l.nextFollowUp,'date') + '<div class="field"><span class="lab">Reach out</span><div class="actions" id="l-reach"></div></div></div>' +
+      (lead && lead.stage === 'won' ? '<div class="field"><span class="lab">After the job</span><div class="actions"><button class="btn ghost" type="button" id="l-cert">Carbon certificate</button><button class="btn ghost" type="button" id="l-review">' + (lead.reviewAskedAt ? 'Ask for a review again' : 'Ask for a review') + '</button><button class="btn ghost" type="button" id="l-case">Write a case study</button></div>' + (lead.reviewAskedAt ? '<span class="hint">Review asked ' + ago(lead.reviewAskedAt) + '</span>' : '') + '</div>' : '') +
       area('notes','Notes',l.notes) + '<p class="err" id="f-err"></p>',
       (lead ? '<button class="btn danger" type="button" id="del">Delete lead</button>' : '') +
       '<div class="actions">' + (lead && lead.stage === 'won' ? '<button class="btn ghost" type="button" id="to-contract">Start contract</button>' : '') + (lead ? '<button class="btn ghost" type="button" id="to-quote">Create quote</button>' : '') + '<button class="btn" type="submit" form="dr-body">Save lead</button></div>');
     reachButtons($('l-reach'), lead, function(){ var d = formData(); return {company:d.company, contact:d.contact, phone:d.phone, item:d.item, stage:d.stage}; });
     if($('to-contract')) $('to-contract').onclick = function(){ closeDrawer(); show('contracts'); contractForm(null, lead); };
+    if($('l-cert')) $('l-cert').onclick = function(){ closeDrawer(); show('marketing'); mkShow('certs'); certForm(null, lead); };
+    if($('l-review')) $('l-review').onclick = function(){ askReview(lead); };
+    if($('l-case')) $('l-case').onclick = function(){ closeDrawer(); show('marketing'); mkShow('cases'); caseForm(null, lead); };
     $('dr-body').onsubmit = async function(e){
       e.preventDefault();
       var d = formData();
@@ -721,7 +753,7 @@ textarea{min-height:84px;resize:vertical}
     {k:'research', t:'To research'}, {k:'found', t:'Contact found'}, {k:'reached', t:'Reached out'},
     {k:'meeting', t:'Meeting set'}, {k:'pipeline', t:'In pipeline'}, {k:'nofit', t:'Not a fit'}
   ];
-  var SEGMENTS = ['Facility management', 'Coworking', 'Office parks and landlords', 'IT and GCC campuses', 'Hospitals', 'Universities', 'Banks and BFSI', 'Other'];
+  var SEGMENTS = ['Facility management', 'Coworking', 'Office parks and landlords', 'IT and GCC campuses', 'Hospitals', 'Universities', 'Banks and BFSI', 'Government and PSU tenders', 'Other'];
   var pFilter = {status:''};
   $('p-seg').innerHTML = '<option value="">All segments</option>' + SEGMENTS.map(function(x){ return '<option>' + esc(x) + '</option>'; }).join('');
   $('p-status').innerHTML = '<option value="">All statuses</option>' + P_STATUS.map(function(x){ return '<option value="' + x.k + '">' + x.t + '</option>'; }).join('');
@@ -1131,6 +1163,7 @@ textarea{min-height:84px;resize:vertical}
     first:{t:'First reply', f:function(l){ return 'Hello' + (l.contact ? ' ' + l.contact.split(' ')[0] : '') + ', this is ' + sender() + '. Thank you for your enquiry' + (l.item ? ' about ' + l.item.toLowerCase() : '') + '. When could our team visit' + (l.company ? ' ' + l.company : '') + ' to assess the furniture? We repair on site, for a fraction of the cost of buying new.'; }},
     follow:{t:'Follow-up', f:function(l){ return 'Hello' + (l.contact ? ' ' + l.contact.split(' ')[0] : '') + ', ' + sender() + ' here. Following up on the furniture repair' + (l.company ? ' for ' + l.company : '') + '. Would a short visit this week suit you?'; }},
     visit:{t:'Confirm visit', f:function(l){ return 'Hello' + (l.contact ? ' ' + l.contact.split(' ')[0] : '') + ', ' + sender() + ' here. Confirming our assessment visit' + (l.company ? ' at ' + l.company : '') + '. Please share a good day and time, and the person our team should meet.'; }},
+    revive:{t:'Try again (lost lead)', f:function(l){ return 'Hello' + (l.contact ? ' ' + l.contact.split(' ')[0] : '') + ', ' + sender() + ' here. We spoke a while ago about furniture repairs' + (l.company ? ' for ' + l.company : '') + '. Did that get sorted? If chairs or sofas still need attention, we can send someone for a free check this week.'; }},
     thanks:{t:'Thank you after the job', f:function(l){ return 'Hello' + (l.contact ? ' ' + l.contact.split(' ')[0] : '') + ', thank you for choosing Lynchpin. We hope the repaired furniture is serving' + (l.company ? ' ' + l.company : '') + ' well. If a colleague or another office needs repairs, we would be glad to help.'; }}
   };
   function quoteMessage(q){
@@ -1207,6 +1240,8 @@ textarea{min-height:84px;resize:vertical}
     var renew = state.contracts.filter(function(c){ return mine(c) && c.status !== 'ended'; }).map(function(c){ return {c:c, renew:daysUntil(c.end), visit:daysUntil(nextVisit(c))}; })
       .filter(function(x){ return (x.renew !== null && x.renew <= 45) || (x.visit !== null && x.visit <= 7); })
       .sort(function(a,b){ return Math.min(a.renew, a.visit) - Math.min(b.renew, b.visit); });
+    var revive = state.leads.filter(function(l){ return l.stage === 'lost' && mine(l) && hoursSince(l.lostAt || l.updatedAt) > 24 * 60 && (!l.revivedAt || hoursSince(l.revivedAt) > 24 * 90); }).slice(0, 8);
+    var askList = state.leads.filter(function(l){ return l.stage === 'won' && mine(l) && !l.reviewAskedAt && hoursSince(l.wonAt || l.updatedAt) < 24 * 60; }).slice(0, 8);
     var late = fresh.filter(function(l){ return hoursSince(l.createdAt || l.updatedAt) > 2; }).length;
     $('t-stats').innerHTML = [
       [fresh.length, 'new enquiries to call' + (late ? ' (' + late + ' past 2 hours)' : '')],
@@ -1239,7 +1274,13 @@ textarea{min-height:84px;resize:vertical}
         var c = x.c;
         return '<div class="item"><div class="item-b" data-contract="' + c.id + '"><h3>' + esc(c.company || 'Contract') + '</h3><p>' + money(c.value) + ' a year' + (c.chairs ? ' · ' + esc(c.chairs) + ' pieces' : '') + '</p><p>' + (x.visit !== null && x.visit <= 7 ? 'Visit ' + dueText(x.visit) : '') + (x.visit !== null && x.visit <= 7 && x.renew !== null && x.renew <= 45 ? ' · ' : '') + (x.renew !== null && x.renew <= 45 ? 'Renewal ' + dueText(x.renew) : '') + '</p></div>' +
           '<div class="acts">' + (waLink(c.phone) ? '<a class="mini" href="' + telLink(c.phone) + '">Call</a><button class="mini wa" type="button" data-cwa="' + c.id + '">WhatsApp</button>' : '<span class="hint">No phone</span>') + '</div></div>';
-      }), state.contracts.length ? 'No visits or renewals coming up.' : 'Add maintenance contracts in the Contracts tab to see visits and renewals here.');
+      }), state.contracts.length ? 'No visits or renewals coming up.' : 'Add maintenance contracts in the Contracts tab to see visits and renewals here.') +
+      panel('Worth another try', 'Lost 2 months or more ago, not tried again since', revive.map(function(l){
+        return leadRow(l, 'Lost ' + ago(l.lostAt || l.updatedAt) + (l.revivedAt ? ' · last tried ' + ago(l.revivedAt) : ''));
+      }).map(function(h){ return h.replace('data-wa=', 'data-rv='); }), 'No lost leads to revisit yet.') +
+      panel('Ask for a review', 'Won in the last 60 days, not asked yet', askList.map(function(l){
+        return leadRow(l, 'Won ' + ago(l.wonAt || l.updatedAt)).replace('data-wa=', 'data-ask=');
+      }), 'Everyone recent has been asked.');
 
     var g = $('t-grid'), byId = function(list, id){ return list.find(function(x){ return x.id === id; }); };
     g.querySelectorAll('[data-lead]').forEach(function(el){ el.onclick = function(){ leadForm(byId(state.leads, el.dataset.lead)); }; });
@@ -1252,6 +1293,11 @@ textarea{min-height:84px;resize:vertical}
     }; });
     g.querySelectorAll('[data-qwa]').forEach(function(el){ el.onclick = function(){ var q = byId(state.quotes, el.dataset.qwa); window.open(waLink(q.client.phone, nudgeMessage(q)), '_blank', 'noopener'); }; });
     g.querySelectorAll('[data-cwa]').forEach(function(el){ el.onclick = function(){ var c = byId(state.contracts, el.dataset.cwa); window.open(waLink(c.phone, contractMessage(c)), '_blank', 'noopener'); }; });
+    g.querySelectorAll('[data-rv]').forEach(function(el){ el.onclick = function(){
+      var l = byId(state.leads, el.dataset.rv); window.open(waLink(l.phone, MESSAGES.revive.f(l)), '_blank', 'noopener');
+      db.doc('leads/' + l.id).update({revivedAt:new Date().toISOString()}).catch(failWrite);
+    }; });
+    g.querySelectorAll('[data-ask]').forEach(function(el){ el.onclick = function(){ askReview(byId(state.leads, el.dataset.ask)); }; });
   }
 
   /* ---------- maintenance contracts ---------- */
@@ -1393,6 +1439,272 @@ textarea{min-height:84px;resize:vertical}
       '<section class="panel"><div class="panel-h"><h2>Team</h2><small>Open leads, wins and speed to first call</small></div><table><thead><tr><th>Person</th><th class="r">Open</th><th class="r">Won</th><th class="r">Value won</th><th class="r">First call</th></tr></thead><tbody>' + team + '</tbody></table></section>' +
       '<section class="panel"><div class="panel-h"><h2>Pipeline by stage</h2><small>All leads right now</small></div><table><tbody>' + funnel + '</tbody></table></section>' +
       '<section class="panel"><div class="panel-h"><h2>Quotes</h2><small>Dated in the period</small></div><div class="pad"><div class="stats" style="margin:0"><div class="stat"><b>' + qSent.length + '</b><span>sent</span></div><div class="stat"><b>' + qAcc.length + '</b><span>accepted</span></div><div class="stat"><b>' + (qAcc.length + qDec.length ? Math.round(100 * qAcc.length / (qAcc.length + qDec.length)) + '%' : '–') + '</b><span>acceptance rate</span></div><div class="stat"><b>' + money(qAcc.reduce(function(s,q){ return s + quoteTotals(q).total; }, 0)) + '</b><span>value accepted</span></div></div></div></section>';
+  }
+
+  /* ---------- marketing: QR sticker, carbon certificates, case studies, reviews ---------- */
+  // Links on stickers and certificates always point at the public site, even from claude.ai or localhost
+  var PUBLIC = /(\.vercel\.app|lynchpin\.co\.in)$/.test(location.hostname) ? location.origin : 'https://main-website-concept.vercel.app';
+  var CHAIR_KG = 87; // kg CO2e per new task chair: the lowest of three published declarations, as on the website
+  var mkTab = 'sticker';
+  function mkShow(t){ mkTab = t; $('mk-tabs').querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.mk === t); }); renderMarketing(); }
+  $('mk-tabs').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ mkShow(b.dataset.mk); }; });
+  function renderMarketing(){
+    if(mkTab === 'sticker') renderSticker();
+    if(mkTab === 'certs') renderCerts();
+    if(mkTab === 'cases') renderCases();
+    if(mkTab === 'reviews') renderReviews();
+  }
+  function setting(k){ var d = state.settings.find(function(x){ return x.id === 'main'; }) || {}; return d[k] || ''; }
+
+  /* The QR library loads only when someone opens the sticker */
+  var qrLib = null;
+  function loadQr(){
+    if(window.qrcode) return Promise.resolve(window.qrcode);
+    return qrLib || (qrLib = new Promise(function(ok, fail){ var s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; s.onload = function(){ ok(window.qrcode); }; s.onerror = fail; document.head.appendChild(s); }));
+  }
+  function qrPath(text){
+    var q = window.qrcode(0, 'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), d = '';
+    for(var r = 0; r < n; r++) for(var c = 0; c < n; c++) if(q.isDark(r, c)) d += 'M' + c + ' ' + r + 'h1v1h-1z';
+    return {n:n, d:d};
+  }
+  /* 60 × 84 mm sticker: logo, the ask, the QR code, the phone number */
+  function stickerSvg(url, client, logoHref){
+    var qr = qrPath(url), size = 150, scale = size / qr.n;
+    return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 240 336" width="60mm" height="84mm" font-family="Archivo, Arial, sans-serif">' +
+      '<rect width="240" height="336" rx="14" fill="#fff"/><rect width="240" height="58" rx="14" fill="#E3181F"/><rect y="44" width="240" height="14" fill="#E3181F"/>' +
+      '<image href="' + logoHref + '" xlink:href="' + logoHref + '" x="62" y="13" width="116" height="31"/>' +
+      '<text x="120" y="88" text-anchor="middle" font-size="21" font-weight="800" fill="#16181B">Something broken?</text>' +
+      '<text x="120" y="108" text-anchor="middle" font-size="12.5" fill="#5D6168">Scan to book a repair</text>' +
+      '<g transform="translate(45 118) scale(' + scale.toFixed(4) + ')"><path d="' + qr.d + '" fill="#16181B"/></g>' +
+      (client ? '<text x="120" y="290" text-anchor="middle" font-size="10.5" fill="#5D6168">For ' + esc(client) + '</text>' : '') +
+      '<text x="120" y="' + (client ? 308 : 298) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#16181B">or call +91 90366 15441</text>' +
+      '<text x="120" y="' + (client ? 324 : 316) + '" text-anchor="middle" font-size="9" fill="#8A8F98">Lynchpin · office furniture repair</text></svg>';
+  }
+  function stickerUrl(client){ return PUBLIC + '/book?src=qr' + (client ? '&c=' + encodeURIComponent(client) : ''); }
+  function logoData(){
+    return fetch('assets/logo-white.png').then(function(r){ return r.blob(); }).then(function(b){ return new Promise(function(ok){ var fr = new FileReader(); fr.onload = function(){ ok(fr.result); }; fr.readAsDataURL(b); }); });
+  }
+  function renderSticker(){
+    $('mk-body').innerHTML = '<div class="mk-grid"><div class="sticker-box" id="stk-prev"><div class="skel" style="width:240px;height:336px"></div></div>' +
+      '<section class="panel"><div class="panel-h"><h2>Service sticker</h2><small>Stick it under the seat or on the side of every piece you repair</small></div><div class="pad" style="display:grid;gap:12px">' +
+      '<p>Anyone in the client\'s office scans it and books a repair on the website. The booking lands in the pipeline as <b>Service booking</b>, and the team gets an email.</p>' +
+      '<div class="field"><label for="stk-client">Client name on the sticker (optional)</label><input id="stk-client" placeholder="Leave empty for one sticker for every client"><span class="hint">With a name, the booking form opens with the company already filled in.</span></div>' +
+      '<div class="field"><span class="lab">The QR code opens</span><a class="link" id="stk-url" target="_blank" rel="noopener"></a></div>' +
+      '<div class="actions"><button class="btn red" type="button" id="stk-print">Print a sheet of 12</button><button class="btn ghost" type="button" id="stk-png">Download PNG</button><button class="btn ghost" type="button" id="stk-svg">Download SVG</button></div>' +
+      '<p class="hint">Print on A4 sticker paper (3 × 4 labels of about 60 × 84 mm), or send the PNG or SVG to a printer for vinyl stickers.</p></div></section></div>';
+    var draw = function(){
+      var client = $('stk-client').value.trim(), url = stickerUrl(client);
+      $('stk-url').textContent = url.replace(/^https?:\/\//, ''); $('stk-url').href = url;
+      $('stk-prev').innerHTML = stickerSvg(url, client, 'assets/logo-white.png');
+    };
+    loadQr().then(function(){ draw(); $('stk-client').oninput = draw; }).catch(function(){ $('stk-prev').innerHTML = '<p class="err">The QR code maker did not load. Check the connection and open this tab again.</p>'; });
+    function full(){ var client = $('stk-client').value.trim(); return logoData().then(function(logo){ return stickerSvg(stickerUrl(client), client, logo); }); }
+    $('stk-svg').onclick = function(){ full().then(function(svg){ save('lynchpin-sticker.svg', new Blob([svg], {type:'image/svg+xml'})); }); };
+    $('stk-png').onclick = function(){
+      full().then(function(svg){
+        var img = new Image(), url = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml'}));
+        img.onload = function(){ var cv = document.createElement('canvas'); cv.width = 1200; cv.height = 1680; var cx = cv.getContext('2d'); cx.drawImage(img, 0, 0, 1200, 1680); cv.toBlob(function(b){ save('lynchpin-sticker.png', b); }, 'image/png'); URL.revokeObjectURL(url); };
+        img.src = url;
+      });
+    };
+    $('stk-print').onclick = function(){
+      full().then(function(svg){
+        var w = window.open('', '_blank');
+        if(!w){ toast('Allow pop-ups for this page to print the sheet.'); return; }
+        w.document.write('<!doctype html><title>Lynchpin stickers</title><style>@page{size:A4;margin:8mm}body{margin:0;display:grid;grid-template-columns:repeat(3,60mm);gap:6mm 6mm;justify-content:center}svg{width:60mm;height:84mm}</style>' + Array(12).join(svg + '\n') + svg + '<script>window.onload=function(){print()}<\/script>');
+        w.document.close();
+      });
+    };
+  }
+  function save(name, blob){
+    if(downloads) return downloads.save({filename:name, data:blob}).catch(function(e){ if(e && e.code !== 'declined') toast('The file could not be saved here.'); });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  }
+
+  /* Certificates */
+  function certCo2(c){ return (+c.chairs || 0) * CHAIR_KG; }
+  function certLink(c){ return PUBLIC + '/certificate?id=' + encodeURIComponent(c.id); }
+  function renderCerts(){
+    var list = state.certificates.slice().sort(function(a,b){ return (b.date || '').localeCompare(a.date || ''); });
+    var kg = list.reduce(function(s,c){ return s + (+c.co2Kg || 0); }, 0), pieces = list.reduce(function(s,c){ return s + ['chairs','sofas','workstations','pedestals','other'].reduce(function(t,k){ return t + (+c[k] || 0); }, 0); }, 0);
+    $('mk-body').innerHTML = '<div class="stats"><div class="stat"><b>' + list.length + '</b><span>certificates issued</span></div><div class="stat"><b>' + pieces + '</b><span>pieces repaired on them</span></div><div class="stat"><b>' + (kg >= 1000 ? (kg / 1000).toFixed(1) + ' t' : kg + ' kg') + '</b><span>CO₂e avoided for clients</span></div></div>' +
+      '<div class="head" style="margin-bottom:12px"><p>Give every client a branded certificate after a job. They open it on the website, print it or save it as a PDF, and share it on LinkedIn.</p><div class="actions"><button class="btn red" type="button" id="cert-add">New certificate</button></div></div>' +
+      (list.length ? '<div class="table-wrap"><table><thead><tr><th>No.</th><th>Client</th><th>Date</th><th class="r">Pieces</th><th class="r">CO₂e avoided</th><th></th></tr></thead><tbody>' + list.map(function(c){
+        var n = ['chairs','sofas','workstations','pedestals','other'].reduce(function(t,k){ return t + (+c[k] || 0); }, 0);
+        return '<tr tabindex="0" data-id="' + c.id + '"><td class="num"><b>' + esc(c.number || '') + '</b></td><td>' + esc(c.company) + '<div class="seg">' + esc(c.city || '') + '</div></td><td>' + fmtDate(c.date) + '</td><td class="r num">' + n + '</td><td class="r num"><b>' + (+c.co2Kg || 0) + ' kg</b></td><td class="r"><a class="mini" href="' + certLink(c) + '" target="_blank" rel="noopener" data-stop>Open</a></td></tr>';
+      }).join('') + '</tbody></table></div>' : '<div class="empty"><h2>No certificates yet</h2><p>Open a won lead and choose Carbon certificate, or start one here.</p></div>');
+    $('cert-add').onclick = function(){ certForm(null); };
+    $('mk-body').querySelectorAll('[data-stop]').forEach(function(a){ a.addEventListener('click', function(e){ e.stopPropagation(); }); });
+    $('mk-body').querySelectorAll('tbody tr').forEach(function(tr){ tr.onclick = function(){ certForm(state.certificates.find(function(c){ return c.id === tr.dataset.id; })); }; });
+  }
+  function nextCertNo(){
+    var y = new Date().getFullYear(), max = 0;
+    state.certificates.forEach(function(c){ var m = /^LP-C-(\d{4})-(\d+)$/.exec(c.number || ''); if(m && +m[1] === y) max = Math.max(max, +m[2]); });
+    return 'LP-C-' + y + '-' + String(max + 1).padStart(3, '0');
+  }
+  function certForm(cert, lead){
+    var c = cert || {number:nextCertNo(), date:today(), company:lead ? lead.company || '' : '', city:lead ? lead.city || '' : '', leadId:lead ? lead.id : '', phone:lead ? lead.phone || '' : '', contact:lead ? lead.contact || '' : ''};
+    openDrawer(cert ? 'Certificate ' + c.number : 'New carbon certificate', false,
+      '<div class="row">' + fld('company','Client company',c.company,'text',true) + fld('city','City',c.city) + '</div>' +
+      '<div class="row">' + fld('date','Date of the work',c.date,'date') + fld('number','Certificate number',c.number) + '</div>' +
+      '<span class="lab">Pieces repaired</span>' +
+      '<div class="row">' + fld('chairs','Office chairs',c.chairs,'number') + fld('sofas','Sofas and lounge seats',c.sofas,'number') + '</div>' +
+      '<div class="row">' + fld('workstations','Workstations',c.workstations,'number') + fld('pedestals','Pedestals',c.pedestals,'number') + '</div>' +
+      '<div class="row">' + fld('other','Other pieces',c.other,'number') + '<div class="field"><span class="lab">CO₂e avoided</span><b id="c-co2" style="font-size:1.4rem"></b><span class="hint">' + CHAIR_KG + ' kg per chair, the lowest published figure. Other pieces are listed, not counted.</span></div></div>' +
+      '<div class="row">' + fld('contact','Client contact',c.contact) + fld('phone','Client phone',c.phone,'tel') + '</div><p class="err" id="f-err"></p>',
+      (cert ? '<button class="btn danger" type="button" id="del">Delete</button>' : '') + '<div class="actions">' + (cert ? '<a class="btn ghost" href="' + certLink(cert) + '" target="_blank" rel="noopener">Open</a><button class="btn ghost" type="button" id="c-wa">Send on WhatsApp</button>' : '') + '<button class="btn" type="submit" form="dr-body">' + (cert ? 'Save' : 'Create certificate') + '</button></div>');
+    var co2 = function(){ $('c-co2').textContent = ((+$('f-chairs').value || 0) * CHAIR_KG).toLocaleString('en-IN') + ' kg'; };
+    $('f-chairs').addEventListener('input', co2); co2();
+    $('dr-body').onsubmit = async function(e){
+      e.preventDefault();
+      var d = formData(); ['chairs','sofas','workstations','pedestals','other'].forEach(function(k){ d[k] = +d[k] || 0; });
+      if(!d.company.trim()){ $('f-err').textContent = 'Add the client company.'; return; }
+      if(!(d.chairs + d.sofas + d.workstations + d.pedestals + d.other)){ $('f-err').textContent = 'Add at least one repaired piece.'; return; }
+      d.co2Kg = certCo2(d); d.leadId = c.leadId || ''; d.updatedAt = new Date().toISOString();
+      try{
+        if(cert){ await db.doc('certificates/' + cert.id).update(d); closeDrawer(); toast('Certificate updated'); }
+        else { d.createdAt = d.updatedAt; d.createdBy = meId; var ref = await db.collection('certificates').add(d); closeDrawer(); toast('Certificate ' + d.number + ' created'); var made = Object.assign({id:ref.id}, d); setTimeout(function(){ certForm(made); }, 400); }
+      } catch(err){ failWrite(err); }
+    };
+    if(cert){
+      confirmBtn($('del'), 'Delete', async function(){ await db.doc('certificates/' + cert.id).delete(); closeDrawer(); toast('Certificate deleted'); });
+      $('c-wa').onclick = function(){
+        var d = formData();
+        if(!waLink(d.phone)){ $('f-err').textContent = 'Add the client phone first.'; return; }
+        window.open(waLink(d.phone, 'Hello' + (d.contact ? ' ' + d.contact.split(' ')[0] : '') + ', thank you for choosing Lynchpin. By repairing instead of replacing, ' + d.company + ' avoided an estimated ' + certCo2(d).toLocaleString('en-IN') + ' kg of CO₂e. Here is your certificate, ready to print or share: ' + certLink(cert)), '_blank', 'noopener');
+      };
+    }
+  }
+
+  /* Case studies: the team adds photos and a few facts; the website shows them at /work */
+  function slugify(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70); }
+  function caseLink(c){ return PUBLIC + '/work/' + c.slug; }
+  function renderCases(){
+    var list = state.cases.slice().sort(function(a,b){ return (b.date || '').localeCompare(a.date || ''); });
+    $('mk-body').innerHTML = '<div class="head" style="margin-bottom:12px"><p>Add before and after photos and a few lines on the job. Published case studies appear on the website under <a class="link" href="' + PUBLIC + '/work" target="_blank" rel="noopener">Our work</a>, and you get a LinkedIn post to copy.</p><div class="actions"><button class="btn red" type="button" id="case-add">New case study</button></div></div>' +
+      (list.length ? '<div class="table-wrap"><table><thead><tr><th>Case study</th><th>Date</th><th>Photos</th><th>Status</th></tr></thead><tbody>' + list.map(function(c){
+        return '<tr tabindex="0" data-id="' + c.id + '"><td><b>' + esc(c.title || 'Untitled') + '</b><div class="seg">' + esc([c.showClient ? c.client : '', c.city].filter(Boolean).join(' · ')) + '</div></td><td>' + fmtDate(c.date) + '</td><td>' + (c.photos || []).length + '</td><td><span class="pill' + (c.published ? ' on' : '') + '">' + (c.published ? 'On the website' : 'Draft') + '</span></td></tr>';
+      }).join('') + '</tbody></table></div>' : '<div class="empty"><h2>No case studies yet</h2><p>After a good job, open the won lead and choose Write a case study. Photos from a phone are fine.</p></div>');
+    $('case-add').onclick = function(){ caseForm(null); };
+    $('mk-body').querySelectorAll('tbody tr').forEach(function(tr){ tr.onclick = function(){ caseForm(state.cases.find(function(c){ return c.id === tr.dataset.id; })); }; });
+  }
+  /* Phone photos are large; shrink to 1200 px JPEG before saving */
+  function shrink(file){
+    return new Promise(function(ok, fail){
+      var img = new Image(), url = URL.createObjectURL(file);
+      img.onload = function(){ var k = Math.min(1, 1200 / Math.max(img.width, img.height)), cv = document.createElement('canvas'); cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k); cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height); URL.revokeObjectURL(url); ok(cv.toDataURL('image/jpeg', .8)); };
+      img.onerror = fail; img.src = url;
+    });
+  }
+  function casePost(d, link){
+    return [d.title, '', d.problem, '', 'What we did: ' + (d.work || ''), d.result ? '\n' + d.result : '', d.quote ? '\n"' + d.quote + '"' + (d.quoteBy ? ' (' + d.quoteBy + ')' : '') : '', '', 'Before and after photos: ' + link, '', '#OfficeFurniture #FurnitureRepair #Bengaluru #Sustainability #FacilitiesManagement'].filter(function(x){ return x !== undefined; }).join('\n').replace(/\n{3,}/g, '\n\n');
+  }
+  function caseForm(cs, lead){
+    var c = cs ? JSON.parse(JSON.stringify(cs)) : {date:today(), photos:[], client:lead ? lead.company || '' : '', city:lead ? lead.city || '' : '', pieces:lead ? lead.item || '' : '', leadId:lead ? lead.id : '', published:false, showClient:false};
+    var photos = c.photos || [];
+    openDrawer(cs ? 'Case study' : 'New case study', true,
+      fld('title','Headline',c.title,'text',true) + '<p class="hint" style="margin-top:-8px">For example: "120 chairs back in use in 3 days at a Whitefield tech park"</p>' +
+      '<div class="row">' + fld('client','Client',c.client) + fld('city','City',c.city) + '</div>' +
+      '<label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="f-showClient" style="width:auto"' + (c.showClient ? ' checked' : '') + '> The client agreed to be named on the website</label>' +
+      '<div class="row">' + fld('pieces','What was repaired',c.pieces) + fld('days','Days on site',c.days,'number') + '</div>' +
+      '<div class="row">' + sel('segment','Type of client',[['','Not shown']].concat(SEGMENTS.filter(function(x){ return x.indexOf('tenders') < 0; }).map(function(x){ return [x,x]; })),c.segment) + fld('date','Date',c.date,'date') + '</div>' +
+      area('problem','The problem: what was worn or broken',c.problem) + area('work','What we did',c.work) + area('result','The result',c.result) +
+      '<div class="row">' + fld('quote','Client quote (optional)',c.quote) + fld('quoteBy','Quote by',c.quoteBy) + '</div>' +
+      '<div class="field"><span class="lab">Photos (before and after)</span><div class="photo-row" id="c-photos"></div><div class="actions"><label class="btn ghost" style="cursor:pointer">Add before photo<input type="file" accept="image/*" id="c-before" hidden></label><label class="btn ghost" style="cursor:pointer">Add after photo<input type="file" accept="image/*" id="c-after" hidden></label></div></div>' +
+      '<label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="f-published" style="width:auto"' + (c.published ? ' checked' : '') + '> Show on the website</label>' +
+      '<p class="err" id="f-err"></p>',
+      (cs ? '<button class="btn danger" type="button" id="del">Delete</button>' : '') + '<div class="actions"><button class="btn ghost" type="button" id="c-fill">Write the result for me</button><button class="btn ghost" type="button" id="c-li">Copy LinkedIn post</button>' + (cs && cs.published ? '<a class="btn ghost" href="' + caseLink(cs) + '" target="_blank" rel="noopener">View on website</a>' : '') + '<button class="btn" type="submit" form="dr-body">Save</button></div>');
+    function drawPhotos(){
+      $('c-photos').innerHTML = photos.map(function(p, i){ return '<figure><img src="' + (p.preview || PUBLIC + '/api/public?type=photo&id=' + p.id) + '" alt=""><figcaption><span>' + esc(p.label) + '</span><button type="button" data-rm="' + i + '">Remove</button></figcaption></figure>'; }).join('') || '<span class="hint">No photos yet.</span>';
+      $('c-photos').querySelectorAll('[data-rm]').forEach(function(b){ b.onclick = function(){ var p = photos.splice(+b.dataset.rm, 1)[0]; if(p && p.id) db.doc('casePhotos/' + p.id).delete().catch(function(){}); drawPhotos(); }; });
+    }
+    drawPhotos();
+    [['c-before','Before'],['c-after','After']].forEach(function(x){
+      $(x[0]).onchange = async function(e){
+        var file = e.target.files[0]; if(!file) return;
+        if(photos.length >= 6){ $('f-err').textContent = 'Six photos is the most for one case study.'; return; }
+        $('f-err').textContent = 'Adding the photo…';
+        try { var data = await shrink(file); var ref = await db.collection('casePhotos').add({data:data, createdAt:new Date().toISOString()}); photos.push({id:ref.id, label:x[1], preview:data}); drawPhotos(); $('f-err').textContent = ''; }
+        catch(err){ $('f-err').textContent = 'That photo did not save. Try a smaller one.'; }
+        e.target.value = '';
+      };
+    });
+    $('c-fill').onclick = function(){
+      var d = formData();
+      if(!$('f-result').value.trim()) $('f-result').value = (d.pieces ? d.pieces.charAt(0).toUpperCase() + d.pieces.slice(1) : 'Every piece') + ' back in use' + (d.days ? ' after ' + d.days + ' day' + (+d.days === 1 ? '' : 's') + ' on site' : '') + ', repaired at the office with warranted spares, at a fraction of the cost of buying new.';
+      if(!$('f-title').value.trim()) $('f-title').value = (d.pieces || 'Office furniture') + ' repaired for ' + ($('f-showClient').checked && d.client ? d.client : 'a ' + (d.city ? d.city + ' ' : '') + 'office');
+    };
+    $('c-li').onclick = function(){
+      var d = formData(), text = casePost(d, cs && cs.slug ? caseLink(cs) : PUBLIC + '/work');
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function(){ toast('LinkedIn post copied'); }).catch(function(){ $('f-err').textContent = 'Copy did not work here. The post: ' + text; });
+    };
+    $('dr-body').onsubmit = async function(e){
+      e.preventDefault();
+      var d = formData();
+      if(!d.title.trim()){ $('f-err').textContent = 'Add a headline.'; $('f-title').focus(); return; }
+      d.showClient = $('f-showClient').checked; d.published = $('f-published').checked;
+      if(d.published && !photos.length && !d.problem.trim()){ $('f-err').textContent = 'Add photos or a few lines before showing it on the website.'; return; }
+      d.photos = photos.map(function(p){ return {id:p.id, label:p.label}; });
+      d.slug = cs && cs.slug ? cs.slug : slugify(d.title) + '-' + Math.random().toString(36).slice(2, 6);
+      d.days = d.days === '' ? null : +d.days; d.leadId = c.leadId || ''; d.updatedAt = new Date().toISOString();
+      try{
+        if(cs) await db.doc('cases/' + cs.id).update(d); else { d.createdAt = d.updatedAt; d.createdBy = meId; await db.collection('cases').add(d); }
+        closeDrawer(); toast(d.published ? 'Saved. It is on the website.' : 'Saved as a draft');
+      } catch(err){ failWrite(err); }
+    };
+    if(cs) confirmBtn($('del'), 'Delete', async function(){ for(var i = 0; i < photos.length; i++) await db.doc('casePhotos/' + photos[i].id).delete().catch(function(){}); await db.doc('cases/' + cs.id).delete(); closeDrawer(); toast('Case study deleted'); });
+  }
+
+  /* Reviews: ask after every won job, publish the good ones (with permission) on the website */
+  function reviewLink(company){ var g = setting('googleReviewUrl'); return PUBLIC + '/review?c=' + encodeURIComponent(company || '') + (g ? '&g=' + encodeURIComponent(g) : ''); }
+  function askReview(lead){
+    if(!lead) return;
+    if(!waLink(lead.phone)){ toast('Add the client phone number first.'); return; }
+    var text = 'Hello' + (lead.contact ? ' ' + lead.contact.split(' ')[0] : '') + ', ' + sender() + ' here. Thank you for having us' + (lead.company ? ' at ' + lead.company : '') + '. Could you spare a minute to tell us how the repair went? It helps other offices find us: ' + reviewLink(lead.company);
+    window.open(waLink(lead.phone, text), '_blank', 'noopener');
+    db.doc('leads/' + lead.id).update({reviewAskedAt:new Date().toISOString()}).then(function(){ toast('Review request opened in WhatsApp'); }).catch(failWrite);
+  }
+  function renderReviews(){
+    var list = state.reviews.slice().sort(function(a,b){ return (b.createdAt || b.date || '').localeCompare(a.createdAt || a.date || ''); });
+    var avg = list.length ? list.reduce(function(s,r){ return s + (+r.rating || 0); }, 0) / list.length : 0;
+    var asked = state.leads.filter(function(l){ return l.reviewAskedAt; }).length;
+    var stars = function(n){ n = Math.round(+n || 0); return '<span class="stars-s">' + '★'.repeat(n) + '<span style="color:#D6CFCC">' + '★'.repeat(5 - n) + '</span></span>'; };
+    $('mk-body').innerHTML = '<div class="stats"><div class="stat"><b>' + list.length + '</b><span>reviews received</span></div><div class="stat"><b>' + (list.length ? avg.toFixed(1) + ' ★' : '–') + '</b><span>average rating</span></div><div class="stat"><b>' + list.filter(function(r){ return r.published; }).length + '</b><span>on the website</span></div><div class="stat"><b>' + asked + '</b><span>clients asked so far</span></div></div>' +
+      '<div class="mk-grid"><section class="panel"><div class="panel-h"><h2>Setup</h2></div><div class="pad" style="display:grid;gap:12px">' +
+      '<div class="field"><label for="g-url">Google review link</label><input id="g-url" placeholder="https://g.page/r/…/review" value="' + esc(setting('googleReviewUrl')) + '"><span class="hint">From Google Business Profile → Ask for reviews. After a client reviews on our site, they get a button to post it on Google too.</span></div>' +
+      '<div class="actions"><button class="btn" type="button" id="g-save">Save link</button><button class="btn ghost" type="button" id="r-add">Add a review by hand</button></div>' +
+      '<p class="hint">To ask a client: open a won lead and choose Ask for a review, or use the Ask for a review list on Today. The review page: <a class="link" href="' + PUBLIC + '/review" target="_blank" rel="noopener">' + PUBLIC.replace(/^https?:\/\//, '') + '/review</a></p></div></section>' +
+      '<section class="panel"><div class="panel-h"><h2>Reviews</h2><small>Only reviews with permission can go on the website</small></div>' +
+      (list.length ? list.map(function(r){
+        return '<div class="item"><div class="item-b" data-id="' + r.id + '"><h3>' + stars(r.rating) + ' ' + esc(r.name) + (r.role ? ', ' + esc(r.role) : '') + ' · ' + esc(r.company) + '</h3><p>' + esc(r.quote) + '</p><p>' + (r.permission ? '' : '<span class="late">No permission to show on the website</span>') + '</p></div><div class="acts">' + (r.permission ? '<button class="mini' + (r.published ? ' wa' : '') + '" type="button" data-pub="' + r.id + '">' + (r.published ? 'On the website' : 'Show on website') + '</button>' : '') + '</div></div>';
+      }).join('') : '<p class="none">No reviews yet. Ask your last few happy clients today.</p>') + '</section></div>';
+    $('g-save').onclick = function(){
+      var v = $('g-url').value.trim();
+      if(v && !/^https:\/\//.test(v)){ toast('The link should start with https://'); return; }
+      db.doc('settings/main').set(Object.assign({}, state.settings.find(function(x){ return x.id === 'main'; }) || {}, {googleReviewUrl:v, updatedAt:new Date().toISOString()})).then(function(){ toast('Google review link saved'); }).catch(failWrite);
+    };
+    $('r-add').onclick = function(){ reviewForm(null); };
+    $('mk-body').querySelectorAll('[data-pub]').forEach(function(b){ b.onclick = function(){ var r = state.reviews.find(function(x){ return x.id === b.dataset.pub; }); db.doc('reviews/' + r.id).update({published:!r.published, updatedAt:new Date().toISOString()}).then(function(){ toast(r.published ? 'Taken off the website' : 'Now on the website'); }).catch(failWrite); }; });
+    $('mk-body').querySelectorAll('.item-b[data-id]').forEach(function(el){ el.onclick = function(){ reviewForm(state.reviews.find(function(x){ return x.id === el.dataset.id; })); }; });
+  }
+  function reviewForm(rv){
+    var r = rv || {rating:5, date:today(), permission:true};
+    openDrawer(rv ? 'Review' : 'Add a review', false,
+      area('quote','What they said',r.quote) +
+      '<div class="row">' + fld('name','Name',r.name,'text',true) + fld('role','Role',r.role) + '</div>' +
+      '<div class="row">' + fld('company','Company',r.company) + sel('rating','Rating',[['5','5 stars'],['4','4 stars'],['3','3 stars'],['2','2 stars'],['1','1 star']],String(r.rating || 5)) + '</div>' +
+      '<label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="f-permission" style="width:auto"' + (r.permission ? ' checked' : '') + '> They agreed to show it on the website</label><p class="err" id="f-err"></p>',
+      (rv ? '<button class="btn danger" type="button" id="del">Delete</button>' : '') + '<div class="actions"><button class="btn" type="submit" form="dr-body">Save</button></div>');
+    $('dr-body').onsubmit = async function(e){
+      e.preventDefault();
+      var d = formData(); d.rating = +d.rating; d.permission = $('f-permission').checked; if(!d.permission) d.published = false;
+      if(!d.name.trim() || !d.quote.trim()){ $('f-err').textContent = 'Add the name and what they said.'; return; }
+      d.updatedAt = new Date().toISOString();
+      try{ if(rv) await db.doc('reviews/' + rv.id).update(d); else { d.createdAt = d.updatedAt; d.date = today(); d.source = 'Added by hand'; d.published = false; await db.collection('reviews').add(d); } closeDrawer(); toast('Review saved'); }
+      catch(err){ failWrite(err); }
+    };
+    if(rv) confirmBtn($('del'), 'Delete', async function(){ await db.doc('reviews/' + rv.id).delete(); closeDrawer(); toast('Review deleted'); });
   }
 
   /* ---------- drawer and form helpers ---------- */
