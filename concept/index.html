@@ -617,6 +617,17 @@ section[id]{scroll-margin-top:96px}
   /* 10. Contact: mascot smaller, next to the heading */
   .book-capy{width:84px!important;float:right;margin:-8px 0 0 12px}
   section.band{padding-block:56px}
+  /* 11. Contact form: fits inside one phone screen */
+  form{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px 10px!important;padding:14px!important}
+  .field{gap:3px}
+  .field label{font-size:.8rem}
+  .field input,.field select,.field textarea{padding:8px 10px}
+  .field textarea{min-height:56px}
+  .err:empty{display:none}
+  .err{font-size:.75rem}
+  form .btn{justify-self:stretch;text-align:center}
+  .next{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px;padding-top:10px;margin-top:2px;font-size:0}
+  .next b{font-size:.72rem;line-height:1.25;color:var(--mute);font-weight:600}
 }
 .nav-book .sm{display:none}
 @media (max-width:900px){ .nav-book .lg{display:none} .nav-book .sm{display:inline} .nav .nav-book{white-space:nowrap} }
