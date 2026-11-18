@@ -1,21 +1,31 @@
 // Builds the public site into dist/ for Vercel: wraps index.html in a full document and copies
-// the images it uses, plus the team admin at /admin. No other folders go out.
+// the images it uses, the service pages and blog, the crawler files, and the team admin at /admin.
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { SITE, SERVICES, POSTS, businessSchema, servicePage, servicesIndex, postPage, blogIndex, sitemap, robots, llms } from './seo-pages.mjs';
 
 const OUT = 'dist';
-const TITLE = 'Lynchpin Associates | Office furniture repair in Bengaluru';
-const DESCRIPTION = 'Lynchpin repairs, restores and maintains office chairs, sofas, workstations and pedestals for companies across India.';
-// The live address. Change this when the site moves to Lynchpin's own domain.
-const SITE = 'https://main-website-concept.vercel.app';
+// Search results show these two lines: lead with what people type ("office chair repair Bengaluru")
+const TITLE = 'Office Furniture Repair in Bengaluru | Chair, Sofa & Workstation Repair | Lynchpin';
+const DESCRIPTION = 'Lynchpin repairs office chairs, sofas, workstations and pedestals at your office in Bengaluru and across India. Warranted spares and maintenance contracts. Call +91 90366 15441.';
+// The live address lives in seo-pages.mjs. Change it there when the site moves to Lynchpin's own domain.
 
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT);
 
 let page = readFileSync('index.html', 'utf8').replace(/<title>[^<]*<\/title>/, `<title>${TITLE}</title>`);
+// Structured data: the business, and the questions answered on the page (read from its FAQ markup)
+const strip = (h) => h.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+const faq = [...page.matchAll(/<details class="qa"><summary>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/g)].map((m) => ({ '@type': 'Question', name: strip(m[1]), acceptedAnswer: { '@type': 'Answer', text: strip(m[2]) } }));
+const ld = [businessSchema(), { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Lynchpin Associates', url: SITE + '/' }];
+if (faq.length) ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq });
 const head = [
-  '<!doctype html><html lang="en"><head><meta charset="utf-8">',
+  '<!doctype html><html lang="en-IN"><head><meta charset="utf-8">',
   '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
   `<meta name="description" content="${DESCRIPTION}">`,
+  `<link rel="canonical" href="${SITE}/"><meta name="robots" content="index,follow,max-image-preview:large">`,
+  '<meta name="geo.region" content="IN-KA"><meta name="geo.placename" content="Bengaluru">',
+  '<link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt">',
+  ld.map((x) => `<script type="application/ld+json">${JSON.stringify(x)}</script>`).join(''),
   `<meta property="og:title" content="${TITLE}"><meta property="og:description" content="${DESCRIPTION}">`,
   // Link previews (WhatsApp, LinkedIn, Slack) need an absolute image address
   `<meta property="og:type" content="website"><meta property="og:url" content="${SITE}/"><meta property="og:site_name" content="Lynchpin Associates">`,
@@ -48,4 +58,15 @@ cpSync('admin-live.js', `${OUT}/admin-live.js`);
 
 cpSync('assets', `${OUT}/assets`, { recursive: true, filter: (src) => !/[\\/]\.DS_Store$/.test(src) });
 cpSync('assets/favicon.ico', `${OUT}/favicon.ico`); // browsers also ask for /favicon.ico directly
+
+// Service pages and the blog (cleanUrls serves services/x.html at /services/x)
+mkdirSync(`${OUT}/services`); mkdirSync(`${OUT}/blog`);
+writeFileSync(`${OUT}/services.html`, servicesIndex());
+SERVICES.forEach((s) => writeFileSync(`${OUT}/services/${s.slug}.html`, servicePage(s)));
+writeFileSync(`${OUT}/blog.html`, blogIndex());
+POSTS.forEach((p) => writeFileSync(`${OUT}/blog/${p.slug}.html`, postPage(p)));
+// What search engines and AI assistants read first
+writeFileSync(`${OUT}/sitemap.xml`, sitemap());
+writeFileSync(`${OUT}/robots.txt`, robots());
+writeFileSync(`${OUT}/llms.txt`, llms());
 console.log('Built', OUT);

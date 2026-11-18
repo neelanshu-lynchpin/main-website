@@ -239,6 +239,18 @@ input[type=range]{width:100%;accent-color:var(--red);height:28px}
 .book{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px, 5vw, 64px);align-items:start}
 .book address{font-style:normal;display:grid;gap:10px;margin-top:22px;color:var(--ink)}
 .book address > span{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.faq-wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,5vw,64px);align-items:start}
+.qas{display:grid;gap:8px}
+.qa{background:#fff;border:1.5px solid var(--line)}
+.qa summary{cursor:pointer;list-style:none;padding:16px 48px 16px 18px;font-weight:700;font-size:1.02rem;position:relative}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"+";position:absolute;right:18px;top:11px;font:800 1.5rem var(--display);color:var(--red)}
+.qa[open] summary::after{content:"–"}
+.qa p{margin:0;padding:0 18px 16px;color:var(--mute)}
+.qa a{color:var(--ink);font-weight:600}
+@media (max-width:900px){.faq-wrap{grid-template-columns:1fr}}
+.book .li{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px;width:max-content}
+.book .li:hover{color:var(--red)}
 .cp{font:600 12px var(--mono);border:1px solid var(--line);background:#fff;padding:3px 8px;cursor:pointer}
 form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;background:#fff;border:2px solid var(--ink);padding:clamp(18px, 3vw, 30px)}
 .field{display:grid;gap:5px;min-width:0}
@@ -695,17 +707,17 @@ section[id]{scroll-margin-top:96px}
   <div class="wrap nav-in">
     <a href="#intro"><img src="assets/logo.png" alt="Lynchpin home" width="480" height="128"></a>
     <ul>
-      <li><a href="#savings">Savings</a></li>
       <li><a href="#fix">What we fix</a></li>
       <li><a href="#how">How it works</a></li>
-      <li><a href="#where">Where we work</a></li>
+      <li><a href="/services">Services</a></li>
+      <li><a href="/blog">Blog</a></li>
     </ul>
     <a class="btn nav-book" href="#contact"><span class="lg">Book an assessment</span><span class="sm">Book a visit</span></a>
     <a class="nav-call" href="tel:+919036615441" aria-label="Call Lynchpin on +91 90366 15441"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6.6 3.5l2.6 3.3c.4.5.4 1.2 0 1.7L8 10c1.2 2.5 3.4 4.7 6 6l1.5-1.2c.5-.4 1.2-.4 1.7 0l3.3 2.6c.5.4.6 1.2.2 1.7l-1.4 1.8c-.6.8-1.7 1.1-2.6.8C10 19.6 4.4 14 2.3 7.3c-.3-.9 0-2 .8-2.6l1.8-1.4c.5-.4 1.3-.3 1.7.2z" fill="currentColor"/></svg></a>
     <button class="nav-menu" type="button" aria-expanded="false" aria-controls="nav-sheet"><span></span><span></span><span class="sr">Menu</span></button>
   </div>
   <div class="nav-sheet" id="nav-sheet" hidden>
-    <a href="#savings">Savings</a><a href="#fix">What we fix</a><a href="#how">How it works</a><a href="#where">Where we work</a>
+    <a href="#savings">Savings</a><a href="#fix">What we fix</a><a href="#how">How it works</a><a href="/services">Services</a><a href="/blog">Blog</a><a href="#faq">Questions</a>
     <a class="btn" href="#contact">Book an assessment</a>
     <a class="sheet-call" href="tel:+919036615441">Call +91 90366 15441</a>
   </div>
@@ -1051,6 +1063,20 @@ section[id]{scroll-margin-top:96px}
   </div>
 </section>
 
+<section class="band" id="faq" style="padding-top:0">
+  <div class="wrap faq-wrap">
+    <div><span class="kicker">Questions</span><h2 class="t">What offices ask <em>before we visit.</em></h2></div>
+    <div class="qas">
+      <details class="qa"><summary>Do you repair office furniture at our office?</summary><p>Yes. Our technicians repair chairs, sofas, workstations and pedestals on site at your office in Bengaluru, and our service teams travel to clients across India.</p></details>
+      <details class="qa"><summary>How much does office chair repair cost?</summary><p>It depends on the part. A typical one-part repair, such as new fabric or a gas lift, costs around ₹850, against around ₹14,000 for a new ergonomic chair. We assess first and quote before any work starts. <a href="/services/office-chair-repair-bengaluru">More on chair repair</a>.</p></details>
+      <details class="qa"><summary>My office chair keeps sinking. Can it be fixed?</summary><p>A chair that sinks has a worn gas lift. We replace it with a warranted gas lift and test the chair under load. <a href="/blog/office-chair-sinking-gas-lift">Why chairs sink</a>.</p></details>
+      <details class="qa"><summary>Can you reupholster our reception sofas?</summary><p>Yes. We re-cover sofas in fabric or leather, replace foam and springs, and repair or refinish the frame. <a href="/services/sofa-repair-reupholstery-bengaluru">More on sofa repair</a>.</p></details>
+      <details class="qa"><summary>Do you offer yearly maintenance contracts?</summary><p>Yes. We visit on an agreed schedule, inspect every covered piece, repair what has worn with warranted spares and send a report after each visit. <a href="/services/office-furniture-maintenance-contract">More on maintenance contracts</a>.</p></details>
+      <details class="qa"><summary>How fast do you respond?</summary><p>We call back within two business hours of a request. Call <a href="tel:+919036615441">+91 90366 15441</a> or use the form below.</p></details>
+    </div>
+  </div>
+</section>
+
 <section class="band" id="contact" style="padding-top:0">
   <div class="wrap book">
     <div>
@@ -1062,6 +1088,7 @@ section[id]{scroll-margin-top:96px}
         <span>22, 3rd floor, 6th cross, Sampige Road, Malleshwaram, Bengaluru 560003</span>
         <span><span id="phone">+91 90366 15441</span><button class="cp" type="button" data-copy="phone">Copy</button></span>
         <span><span id="email">marketing@lynchpin.co.in</span><button class="cp" type="button" data-copy="email">Copy</button></span>
+        <a class="li" href="https://www.linkedin.com/company/lynchpinassociates-bangalore/" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>Follow Lynchpin on LinkedIn</a>
       </address>
     </div>
     <form id="enquiry" novalidate>
@@ -1090,8 +1117,8 @@ section[id]{scroll-margin-top:96px}
 <footer>
   <div class="wrap foot">
     <div><img loading="lazy" decoding="async" src="assets/logo-white.png" alt="Lynchpin" width="480" height="128"><p>Lynchpin Associates. Ergonomic Solutions. Repairing, servicing and maintaining office furniture across India.</p></div>
-    <nav aria-label="Footer"><b>Explore</b><a href="#savings">Savings</a><a href="#fix">What we fix</a><a href="#how">How it works</a><a href="#where">Where we work</a></nav>
-    <div><b>Talk to us</b><span>+91 90366 15441</span><br><span>marketing@lynchpin.co.in</span><address>22, 3rd floor, 6th cross, Sampige Road, Malleshwaram, Bengaluru 560003</address></div>
+    <nav aria-label="Footer"><b>Services</b><a href="/services/office-chair-repair-bengaluru">Office chair repair</a><a href="/services/sofa-repair-reupholstery-bengaluru">Sofa repair and reupholstery</a><a href="/services/leather-furniture-repair-bengaluru">Leather furniture repair</a><a href="/services/workstation-pedestal-repair-bengaluru">Workstation and pedestal repair</a><a href="/services/office-furniture-maintenance-contract">Maintenance contracts</a><a href="/blog">Blog</a></nav>
+    <div><b>Talk to us</b><span>+91 90366 15441</span><br><span>marketing@lynchpin.co.in</span><address>22, 3rd floor, 6th cross, Sampige Road, Malleshwaram, Bengaluru 560003</address><a href="https://www.linkedin.com/company/lynchpinassociates-bangalore/" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>LinkedIn</a></div>
     <div><b>Team</b><a class="team" href="/admin">Team login</a><p>Carbon figures are guide values.</p></div>
   </div>
 </footer>
