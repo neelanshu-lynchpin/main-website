@@ -90,8 +90,8 @@ footer{background:#0F1012;color:#C9CCD1;padding:48px 0 36px;font-size:.94rem}
 }
 @media (max-width:560px){
   body{font-size:16px}
-  .top nav a:nth-child(3){display:none}
-  .top .btn{display:none}
+  .top nav{display:none}
+  .top .btn{margin-left:auto}
   .foot{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
