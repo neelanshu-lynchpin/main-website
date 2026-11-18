@@ -625,6 +625,47 @@ section[id]{scroll-margin-top:96px}
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.08)}100%{transform:scale(1)}}
 .r-total{transform-origin:0 60%;display:inline-block}
 @media (prefers-reduced-motion:reduce){.r-total.bump{animation:none}}
+
+/* Phones: the whole room photo (3:2) so all five pieces and the full sweep are visible */
+@media (max-width:760px){
+  .r-frame{height:calc(100vw * 2 / 3)!important}
+  .r-copy{top:calc(100vw * 2 / 3)!important}
+  .r-copy-in{padding-top:20px!important;gap:12px!important}
+  .room h1{font-size:2rem!important}
+  .r-capy{height:72px!important;bottom:4px!important}
+}
+
+.ba .state em.tap{display:none;font-style:normal;font-weight:500;opacity:.85}
+@media not all and (hover: hover){
+  .ba .state em.tap{display:inline}
+  .ba .after,.ba .state i,.ba .state b{transition-delay:0s!important}
+  .ba .after{transition:opacity .7s ease}
+  .ba.pinned{outline:3px solid var(--red);outline-offset:-3px}
+}
+
+.r-list{display:none}
+@media (max-width:760px){
+  .ptag{display:none!important}
+  .r-list{display:grid;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid var(--line);order:3;width:100%;justify-self:stretch}
+  .r-list li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:.86rem;color:var(--ink)}
+  .r-list s{text-decoration:none;color:var(--red);font-weight:600}
+  .r-list b{color:#1D7A3E;font-weight:700;opacity:0;transition:opacity .3s}
+  .r-list li.fixed s{text-decoration:line-through;color:var(--mute);font-weight:400}
+  .r-list li.fixed b{opacity:1}
+}
+
+/* numbered dots: the number on the photo matches the row in the phone list */
+.pin i u{display:none}
+.r-list u{display:none}
+@media (max-width:760px){
+  .pin i{width:24px!important;height:24px!important;border-width:2px!important;display:grid!important;place-items:center}
+  .pin i u{display:block;text-decoration:none;font:700 12px/1 var(--body);color:#fff}
+  .pin.fixed i u{display:none}
+  .pin.fixed i::after{left:8px!important;top:5px!important}
+  .r-list span{display:flex;align-items:center;gap:8px}
+  .r-list u{display:grid;place-items:center;flex:none;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;text-decoration:none;font:700 11px/1 var(--body)}
+  .r-list li.fixed u{background:var(--ink)}
+}
 </style>
 
 <nav class="nav" aria-label="Main">
@@ -661,6 +702,7 @@ section[id]{scroll-margin-top:96px}
     <div class="r-copy-in">
       <p class="where">Bengaluru, and on site across India</p>
       <h1>Office furniture,<br> repaired at your office.</h1>
+      <ul class="r-list" id="r-list" aria-hidden="true"></ul>
       <div class="r-row">
       <div class="r-sum" aria-live="polite">
         <span class="r-label" id="r-label">Buying new for the 5 marked pieces</span>
@@ -880,7 +922,7 @@ section[id]{scroll-margin-top:96px}
         <div class="img ba">
           <img fetchpriority="low" decoding="async" src="assets/fix/sofa2-before.webp" alt="Grey three-seater office sofa with torn, stained cushions" width="1200" height="900">
           <img fetchpriority="low" decoding="async" class="after" src="assets/fix/sofa2-after.webp" alt="The same sofa re-covered and clean" width="1200" height="900">
-          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u></i><b>After repair</b></span>
+          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u><em class="tap">· tap to see repair</em></i><b>After repair</b></span>
         </div>
         <div class="body">
           <span class="tag">Sofas and lounge seating</span>
@@ -893,7 +935,7 @@ section[id]{scroll-margin-top:96px}
         <div class="img ba">
           <img fetchpriority="low" decoding="async" src="assets/fix/armchair2-before.webp" alt="Leather tub armchair with cracked, peeling leather and a torn seat" width="1200" height="900">
           <img fetchpriority="low" decoding="async" class="after" src="assets/fix/armchair2-after.webp" alt="The same armchair with restored leather" width="1200" height="900">
-          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u></i><b>After repair</b></span>
+          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u><em class="tap">· tap to see repair</em></i><b>After repair</b></span>
         </div>
         <div class="body"><span class="tag">Leather</span><h3>Cracked, peeling, faded</h3>
           <ul><li>Leather repair and recolouring</li><li>Seat and arm re-covering</li><li>Legs and frames tightened</li></ul></div>
@@ -902,7 +944,7 @@ section[id]{scroll-margin-top:96px}
         <div class="img ba">
           <img src="assets/fix/desk2-before.webp" alt="Workstation with a chipped desktop, stained partition, broken drawers and a torn chair" width="1200" height="900">
           <img class="after" src="assets/fix/desk2-after.webp" alt="The same workstation repaired, with a clean desk, closed drawers and a fixed chair" width="1200" height="900">
-          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u></i><b>After repair</b></span>
+          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u><em class="tap">· tap to see repair</em></i><b>After repair</b></span>
         </div>
         <div class="body"><span class="tag">Workstations and pedestals</span><h3>Loose, chipped, stuck</h3>
           <ul><li>Panels, partitions and edge bands</li><li>Locks, keys and drawer channels</li><li>Cable trays, castors and handles</li></ul>
@@ -913,7 +955,7 @@ section[id]{scroll-margin-top:96px}
         <div class="img ba">
           <img fetchpriority="low" decoding="async" src="assets/fix/chair2-before.webp" alt="Office chair with a torn seat and chipped base" width="507" height="380">
           <img fetchpriority="low" decoding="async" class="after" src="assets/fix/chair2-after.webp" alt="The same chair with a new seat cover" width="507" height="380">
-          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u></i><b>After repair</b></span>
+          <span class="state" aria-hidden="true"><i>Before <u>· hover to repair</u><em class="tap">· tap to see repair</em></i><b>After repair</b></span>
         </div>
         <div class="body"><span class="tag">Office chairs</span><h3>Sinking, wobbly, torn</h3>
           <ul><li>Gas lifts and mechanisms</li><li>Castors, bases and arms</li><li>Seat foam and fabric</li></ul></div>
@@ -1128,10 +1170,25 @@ section[id]{scroll-margin-top:96px}
   var fixCards = [].slice.call(document.querySelectorAll('.fix-grid .ba'));
   var hasCursor = matchMedia('(hover: hover) and (pointer: fine)').matches;
   if(hasCursor){ /* laptops: the repaired photo shows while the cursor is over the card (CSS) */ }
-  else if(!calm && window.ScrollTrigger){
-    gsap.registerPlugin(ScrollTrigger);
-    fixCards.forEach(function(el){ ScrollTrigger.create({trigger:el, start:'top 75%', once:true, onEnter:function(){ el.classList.add('fixed'); }}); });
-  } else fixCards.forEach(function(el){ el.classList.add('fixed'); });
+  else {
+    /* phones: each photo switches between worn and repaired every few seconds; a tap holds the repaired one,
+       a tap anywhere else lets them cycle again */
+    if(!calm) setInterval(function(){
+      fixCards.forEach(function(el){ if(!el.classList.contains('pinned')) el.classList.toggle('fixed'); });
+    }, 2800);
+    else fixCards.forEach(function(el){ el.classList.add('fixed'); });
+    fixCards.forEach(function(el){
+      el.closest('.card').addEventListener('click', function(e){
+        e.stopPropagation();
+        var was = el.classList.contains('pinned');
+        fixCards.forEach(function(c){ c.classList.remove('pinned'); });
+        if(!was){ el.classList.add('pinned', 'fixed'); } else { el.classList.remove('fixed'); }
+      });
+    });
+    document.addEventListener('click', function(){
+      fixCards.forEach(function(c){ if(c.classList.contains('pinned')) c.classList.remove('pinned', 'fixed'); });
+    });
+  }
 
   /* Logos: a second copy makes the loop seamless */
   document.querySelectorAll('.marquee').forEach(function(mq){
@@ -1325,10 +1382,11 @@ section[id]{scroll-margin-top:96px}
   function inr(v){ return '₹' + Math.round(v).toLocaleString('en-IN'); }
   var BUY = PIECES.reduce(function(t, p){ return t + p.buy; }, 0), FIX = PIECES.reduce(function(t, p){ return t + p.fix; }, 0);
 
-  PIECES.forEach(function(p){
+  PIECES.forEach(function(p, n){
     var el = document.createElement('span'); el.className = 'pin' + (p.x > 60 ? ' left' : '');
-    el.innerHTML = '<i></i><span class="ptag"><b>' + p.name + '</b><s>New: ' + inr(p.buy) + '</s><em>Repaired: ' + inr(p.fix) + '</em></span>';
+    el.innerHTML = '<i><u>' + (n + 1) + '</u></i><span class="ptag"><b>' + p.name + '</b><s>New: ' + inr(p.buy) + '</s><em>Repaired: ' + inr(p.fix) + '</em></span>';
     box.appendChild(el); p.el = el;
+    var li = document.createElement('li'); li.innerHTML = '<span><u>' + (n + 1) + '</u>' + p.name + '</span><s>' + inr(p.buy) + '</s><b>' + inr(p.fix) + '</b>'; document.getElementById('r-list').appendChild(li); p.li = li;
   });
 
   function copyBox(){
@@ -1360,7 +1418,7 @@ section[id]{scroll-margin-top:96px}
     var W = frame.clientWidth, x = progress * W, sum = 0, done = 0;
     PIECES.forEach(function(p){
       // a piece cropped off either side of the screen flips at the start or end of the sweep, so all 5 always finish
-      var at = Math.min(.97, Math.max(.03, p.px / W)), fixed = progress >= at; p.el.classList.toggle('fixed', fixed); sum += fixed ? p.fix : p.buy; if(fixed) done++; });
+      var at = Math.min(.97, Math.max(.03, p.px / W)), fixed = progress >= at; p.el.classList.toggle('fixed', fixed); p.li.classList.toggle('fixed', fixed); sum += fixed ? p.fix : p.buy; if(fixed) done++; });
     if(sum !== shown){
       shown = sum;
       // set the exact figure at once (a counting animation can stall on phones), with a short pulse
