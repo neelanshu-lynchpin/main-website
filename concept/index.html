@@ -666,6 +666,18 @@ section[id]{scroll-margin-top:96px}
   .r-list u{display:grid;place-items:center;flex:none;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;text-decoration:none;font:700 11px/1 var(--body)}
   .r-list li.fixed u{background:var(--ink)}
 }
+
+/* Phones: small price tags back on the photo, each above or below its dot so they don't overlap */
+@media (max-width:760px){
+  .ptag{display:block!important;font-size:10px!important;line-height:1.25;padding:3px 6px!important;min-width:0!important;white-space:nowrap;left:50%!important;right:auto!important;transform:translateX(-50%);box-shadow:0 6px 14px -6px rgb(20 14 12 / .55)}
+  .pin.m-up .ptag{top:auto!important;bottom:16px}
+  .pin.m-down .ptag{top:16px!important}
+  .pin.m-r .ptag{left:auto!important;right:-8px!important;transform:none}
+  .pin.m-l .ptag{left:6px!important;right:auto!important;bottom:16px!important;transform:none}
+  .ptag b{display:none}
+  .ptag s,.ptag em{font-size:10px}
+  .pin.fixed .ptag s{display:none}
+}
 </style>
 
 <nav class="nav" aria-label="Main">
@@ -1369,11 +1381,11 @@ section[id]{scroll-margin-top:96px}
 (function(){
   /* Pieces marked on the worn photo: position as % of the 1536 x 1024 image, replacement and repair prices (estimates) */
   var PIECES = [
-    {x:18.5, y:54, name:'Pedestal drawer', buy:9500, fix:900},
-    {x:32, y:73, name:'Office chair, torn seat', buy:14000, fix:1200},
-    {x:42, y:65, name:'Office chair, torn seat', buy:14000, fix:1200},
-    {x:71.6, y:58.6, name:'Leather armchair', buy:38000, fix:6500},
-    {x:84.6, y:67.4, name:'Three-seater sofa', buy:72000, fix:15500}
+    {x:18.5, y:54, name:'Pedestal drawer', buy:9500, fix:900, m:'m-up'},
+    {x:32, y:73, name:'Office chair, torn seat', buy:14000, fix:1200, m:'m-down'},
+    {x:42, y:65, name:'Office chair, torn seat', buy:14000, fix:1200, m:'m-up'},
+    {x:71.6, y:58.6, name:'Leather armchair', buy:38000, fix:6500, m:'m-up m-l'},
+    {x:84.6, y:67.4, name:'Three-seater sofa', buy:72000, fix:15500, m:'m-down m-r'}
   ];
   var IW = 1536, IH = 1024, frame = document.getElementById('r-frame'), box = document.getElementById('r-pins');
   var total = document.getElementById('r-total'), label = document.getElementById('r-label'), keep = document.getElementById('r-keep');
@@ -1383,7 +1395,7 @@ section[id]{scroll-margin-top:96px}
   var BUY = PIECES.reduce(function(t, p){ return t + p.buy; }, 0), FIX = PIECES.reduce(function(t, p){ return t + p.fix; }, 0);
 
   PIECES.forEach(function(p, n){
-    var el = document.createElement('span'); el.className = 'pin' + (p.x > 60 ? ' left' : '');
+    var el = document.createElement('span'); el.className = 'pin ' + p.m + (p.x > 60 ? ' left' : '');
     el.innerHTML = '<i><u>' + (n + 1) + '</u></i><span class="ptag"><b>' + p.name + '</b><s>New: ' + inr(p.buy) + '</s><em>Repaired: ' + inr(p.fix) + '</em></span>';
     box.appendChild(el); p.el = el;
     var li = document.createElement('li'); li.innerHTML = '<span><u>' + (n + 1) + '</u>' + p.name + '</span><s>' + inr(p.buy) + '</s><b>' + inr(p.fix) + '</b>'; document.getElementById('r-list').appendChild(li); p.li = li;
