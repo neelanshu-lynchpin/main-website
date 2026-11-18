@@ -236,8 +236,8 @@ ${schema.map((x) => `<script type="application/ld+json">${JSON.stringify(x)}</sc
 
 const NAV = `<header class="top"><div class="wrap top-in">
 <a href="/" class="logo"><img src="/assets/logo.png" alt="Lynchpin Associates home" width="480" height="128"></a>
-<nav aria-label="Main"><a href="/services">Services</a><a href="/blog">Blog</a><a href="/#contact">Contact</a></nav>
-<a class="btn" href="/#contact">Book a visit</a>
+<nav aria-label="Main"><a href="/services">Services</a><a href="/work">Our work</a><a href="/blog">Blog</a><a href="/audit">Free audit</a></nav>
+<a class="btn" href="/book">Book a repair</a>
 </div></header>`;
 
 function cta(heading = 'Tell us what needs fixing.') {
@@ -248,11 +248,18 @@ function cta(heading = 'Tell us what needs fixing.') {
 const FOOT = `<footer><div class="wrap foot">
 <div><img src="/assets/logo-white.png" alt="Lynchpin" width="480" height="128" loading="lazy"><p>Lynchpin Associates. Ergonomic Solutions. Repairing, servicing and maintaining office furniture across India.</p></div>
 <nav aria-label="Services"><b>Services</b>${SERVICES.map((s) => `<a href="/services/${s.slug}">${esc(s.name)}</a>`).join('')}</nav>
-<nav aria-label="Read"><b>Read</b><a href="/blog">Blog</a>${POSTS.slice(0, 3).map((p) => `<a href="/blog/${p.slug}">${esc(p.title)}</a>`).join('')}</nav>
+<nav aria-label="For clients"><b>For clients</b><a href="/book">Book a repair</a><a href="/audit">Free office furniture audit</a><a href="/work">Our work</a><a href="/review">Leave a review</a><a href="/blog">Blog</a></nav>
 <div><b>Talk to us</b><a href="tel:${TEL}">${PHONE}</a><a href="mailto:${EMAIL}">${EMAIL}</a><address>${esc(ADDRESS.street)}, ${ADDRESS.city} ${ADDRESS.zip}</address><a href="${LINKEDIN}" target="_blank" rel="noopener">LinkedIn</a></div>
 </div></footer></body></html>`;
 
-const crumbs = (items) => ({
+/* Any other page in the same frame: head, top bar, the closing call to action and the footer */
+export function shell({ title, description, path, image, type, schema = [], body, noindex, cta: ctaHead }) {
+  let h = head({ title, description, path, image, type, schema: [businessSchema(), ...schema] });
+  if (noindex) h = h.replace('index,follow,max-image-preview:large', 'noindex,follow');
+  return h + NAV + `<main>${body}</main>` + (ctaHead === false ? '' : cta(ctaHead)) + FOOT;
+}
+
+export const crumbs = (items) => ({
   '@context': 'https://schema.org', '@type': 'BreadcrumbList',
   itemListElement: items.map(([name, path], i) => ({ '@type': 'ListItem', position: i + 1, name, item: SITE + path })),
 });
@@ -332,7 +339,7 @@ export function blogIndex() {
 /* ---------- files for crawlers ---------- */
 export function sitemap() {
   const today = new Date().toISOString().slice(0, 10);
-  const urls = [['/', today, '1.0'], ['/services', today, '0.9'], ...SERVICES.map((s) => [`/services/${s.slug}`, today, '0.9']), ['/blog', today, '0.7'], ...POSTS.map((p) => [`/blog/${p.slug}`, p.date, '0.6'])];
+  const urls = [['/', today, '1.0'], ['/services', today, '0.9'], ['/book', today, '0.8'], ['/audit', today, '0.8'], ['/work', today, '0.7'], ...SERVICES.map((s) => [`/services/${s.slug}`, today, '0.9']), ['/blog', today, '0.7'], ...POSTS.map((p) => [`/blog/${p.slug}`, p.date, '0.6'])];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u, d, pr]) => `  <url><loc>${SITE}${u}</loc><lastmod>${d}</lastmod><priority>${pr}</priority></url>`).join('\n')}\n</urlset>\n`;
 }
 
@@ -361,7 +368,10 @@ ${SERVICES.map((s) => `- [${s.name}](${SITE}/services/${s.slug}): ${s.descriptio
 ## Guides
 ${POSTS.map((p) => `- [${p.title}](${SITE}/blog/${p.slug}): ${p.description}`).join('\n')}
 
-## Contact
+## For clients
+- [Book a repair](${SITE}/book): existing clients book a service visit; the QR sticker on repaired furniture opens this page
+- [Free office furniture audit](${SITE}/audit): repair-vs-replace estimate for an office
+- [Our work](${SITE}/work): case studies
 - [Book an assessment](${SITE}/#contact)
 `;
 }

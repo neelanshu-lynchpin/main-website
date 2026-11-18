@@ -3,6 +3,33 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "headers": [
-    { "source": "/admin", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }, { "key": "Cache-Control", "value": "no-store" }] }
-  ]
+    {
+      "source": "/admin",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/work",
+      "destination": "/api/work"
+    },
+    {
+      "source": "/work/:slug",
+      "destination": "/api/work?slug=:slug"
+    }
+  ],
+  "functions": {
+    "api/work.js": {
+      "includeFiles": "seo-pages.mjs"
+    }
+  }
 }

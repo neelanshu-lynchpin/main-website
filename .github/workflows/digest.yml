@@ -1,0 +1,37 @@
+# Emails the team the day's numbers every morning at 8:30 AM IST, with no one at the keyboard.
+# Needs repository secrets: MONGODB_URI, SMTP_USER, SMTP_PASS (a Gmail app password) and
+# DIGEST_TO (who gets it, e.g. Prashant's address; several separated by commas).
+name: Daily numbers email
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # 03:00 UTC = 08:30 IST, every day
+  workflow_dispatch:       # "Run workflow" button to send one now
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r concept/scout/requirements.txt
+      - name: Check secrets
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          DIGEST_TO: ${{ secrets.DIGEST_TO }}
+        run: |
+          for v in MONGODB_URI SMTP_USER SMTP_PASS DIGEST_TO; do
+            if [ -z "${!v}" ]; then echo "::error::Add the $v secret (Settings > Secrets and variables > Actions)."; exit 1; fi
+          done
+      - name: Send the email
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          DIGEST_TO: ${{ secrets.DIGEST_TO }}
+        run: python3 concept/scout/digest.py
