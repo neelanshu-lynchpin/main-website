@@ -1,0 +1,32 @@
+# Runs the Lynchpin account scout every weekday at 9 AM IST, with no one at the keyboard.
+# It saves to MongoDB Atlas, so the results never land in this public repo.
+# Needs one repository secret: MONGODB_URI (the Atlas connection string).
+name: Daily account scout
+
+on:
+  schedule:
+    - cron: "30 3 * * 1-5"   # 03:30 UTC = 09:00 IST, Monday to Friday
+  workflow_dispatch:          # "Run workflow" button for a manual run
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r concept/scout/requirements.txt
+      - name: Check secret
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          if [ -z "$MONGODB_URI" ]; then
+            echo "::error::Add the MONGODB_URI secret first (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+      - name: Find new target accounts
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: python3 concept/scout/scout.py
