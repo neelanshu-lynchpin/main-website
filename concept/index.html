@@ -621,6 +621,10 @@ section[id]{scroll-margin-top:96px}
 .nav-book .sm{display:none}
 @media (max-width:900px){ .nav-book .lg{display:none} .nav-book .sm{display:inline} .nav .nav-book{white-space:nowrap} }
 @media (max-width:760px){ .r-frame{height:50svh!important} .r-copy{top:50svh!important} }
+.r-total.bump{animation:bump .45s ease}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.08)}100%{transform:scale(1)}}
+.r-total{transform-origin:0 60%;display:inline-block}
+@media (prefers-reduced-motion:reduce){.r-total.bump{animation:none}}
 </style>
 
 <nav class="nav" aria-label="Main">
@@ -1354,11 +1358,14 @@ section[id]{scroll-margin-top:96px}
   var shown = BUY, counter = {v:BUY};
   function show(progress){
     var W = frame.clientWidth, x = progress * W, sum = 0, done = 0;
-    PIECES.forEach(function(p){ var fixed = progress > 0 && x >= Math.max(p.px, 1); p.el.classList.toggle('fixed', fixed); sum += fixed ? p.fix : p.buy; if(fixed) done++; });
+    PIECES.forEach(function(p){
+      // a piece cropped off either side of the screen flips at the start or end of the sweep, so all 5 always finish
+      var at = Math.min(.97, Math.max(.03, p.px / W)), fixed = progress >= at; p.el.classList.toggle('fixed', fixed); sum += fixed ? p.fix : p.buy; if(fixed) done++; });
     if(sum !== shown){
       shown = sum;
-      if(window.gsap) gsap.to(counter, {v:sum, duration:.4, ease:'power2.out', overwrite:true, onUpdate:function(){ total.textContent = inr(counter.v); }, onComplete:function(){ total.textContent = inr(sum); }});
-      else total.textContent = inr(sum);
+      // set the exact figure at once (a counting animation can stall on phones), with a short pulse
+      total.textContent = inr(sum);
+      total.classList.remove('bump'); void total.offsetWidth; total.classList.add('bump');
     }
     if(done === PIECES.length && progress > .98){ label.textContent = 'Lynchpin repaired all 5 for'; keep.innerHTML = 'You keep <b>' + inr(BUY - FIX) + '</b> against buying new'; }
     else if(done){ label.textContent = done + ' of 5 repaired. Cost so far'; keep.textContent = 'Keep scrolling'; }
@@ -1374,10 +1381,10 @@ section[id]{scroll-margin-top:96px}
   }
   gsap.registerPlugin(ScrollTrigger);
   ScrollTrigger.create({
-    trigger:'.room', start:'top top', end:'+=170%', pin:true, scrub:.5, refreshPriority:1, // above the chair section, so it must be measured first
+    trigger:'.room', start:'top top', end:'+=200%', pin:true, scrub:.5, refreshPriority:1, // above the chair section, so it must be measured first
     onUpdate:function(st){
-      // hold the worn room for the first 10% of the scroll, sweep across, hold the repaired room at the end
-      var p = Math.min(1, Math.max(0, (st.progress - .1) / .8)), W = frame.clientWidth;
+      // hold the worn room briefly, sweep across, then hold the repaired room for the last quarter so the result can be read
+      var p = Math.min(1, Math.max(0, (st.progress - .08) / .67)), W = frame.clientWidth;
       after.style.clipPath = 'inset(0 ' + ((1 - p) * 100).toFixed(2) + '% 0 0)';
       line.style.transform = 'translateX(' + (p * W).toFixed(1) + 'px)';
       line.style.opacity = p > 0 && p < 1 ? 1 : 0;
