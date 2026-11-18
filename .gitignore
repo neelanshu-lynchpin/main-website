@@ -2,3 +2,6 @@ concept/scout/out/
 concept/admin-data.js
 concept/scout/.venv/
 __pycache__/
+concept/dist/
+node_modules/
+.DS_Store
